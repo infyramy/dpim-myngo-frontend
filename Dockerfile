@@ -16,7 +16,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies with production optimization
-RUN pnpm install --no-frozen-lockfile --ignore-scripts
+RUN pnpm install --ignore-scripts
 
 # Copy source code
 COPY . .
