@@ -1,1 +1,0 @@
-.animate-bounce[data-v-b2ff0ac3]{animation:bounce-b2ff0ac3 2s infinite}@keyframes bounce-b2ff0ac3{0%,to{transform:translateY(0)}50%{transform:translateY(-20px)}}.animate-pulse[data-v-b2ff0ac3]{animation:pulse-b2ff0ac3 2s cubic-bezier(.4,0,.6,1) infinite}@keyframes pulse-b2ff0ac3{0%,to{opacity:1}50%{opacity:.5}}

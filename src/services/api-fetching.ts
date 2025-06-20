@@ -1,7 +1,10 @@
 import { ofetch } from "ofetch";
 import { useAuthStore } from "@/stores/auth";
+import { config } from "@/services/config";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3001";
+const backendUrl = config.api.url;
+const apiTimeout = config.api.timeout;
+const apiRetries = config.api.retries;
 
 // Helper function to get auth headers
 const getAuthHeaders = () => {
@@ -65,19 +68,34 @@ const handleError = (error: any) => {
   throw error;
 };
 
+// Helper function to create fetch options
+const createFetchOptions = (method: string, body?: any, customHeaders?: Record<string, string>) => {
+  const options: any = {
+    method,
+    headers: {
+      ...getAuthHeaders(),
+      ...customHeaders,
+    },
+    credentials: 'include',
+    timeout: apiTimeout,
+    retry: apiRetries,
+  };
+
+  if (body && ['POST', 'PUT', 'PATCH'].includes(method)) {
+    options.body = JSON.stringify(body);
+    options.headers['Content-Type'] = 'application/json';
+  }
+
+  return options;
+};
+
 export const apiFetching = () => {
   return {
     get: async (url: string, auth: boolean = false) => {
       console.log("API: GET", url);
       
       try {
-        const response = await ofetch(`${backendUrl}${url}`, {
-          method: 'GET',
-          headers: {
-            ...getAuthHeaders(),
-          },
-          credentials: 'include',
-        });
+        const response = await ofetch(`${backendUrl}${url}`, createFetchOptions('GET'));
         
         handleResponse(response);
         return response.json ? response.json() : response;
@@ -91,15 +109,7 @@ export const apiFetching = () => {
       console.log("API: POST: ", url, data);
       
       try {
-        const response = await ofetch(`${backendUrl}${url}`, {
-          method: 'POST',
-          body: JSON.stringify(data),
-          headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeaders(),
-          },
-          credentials: 'include',
-        });
+        const response = await ofetch(`${backendUrl}${url}`, createFetchOptions('POST', data));
         
         console.log("API: POST: Response: ", response);
         handleResponse(response);
@@ -114,15 +124,7 @@ export const apiFetching = () => {
       console.log("API: PUT: ", url, data);
       
       try {
-        const response = await ofetch(`${backendUrl}${url}`, {
-          method: 'PUT',
-          body: JSON.stringify(data),
-          headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeaders(),
-          },
-          credentials: 'include',
-        });
+        const response = await ofetch(`${backendUrl}${url}`, createFetchOptions('PUT', data));
         
         console.log("API: PUT: Response: ", response);
         handleResponse(response);
@@ -137,13 +139,7 @@ export const apiFetching = () => {
       console.log("API: DELETE: ", url);
       
       try {
-        const response = await ofetch(`${backendUrl}${url}`, {
-          method: 'DELETE',
-          headers: {
-            ...getAuthHeaders(),
-          },
-          credentials: 'include',
-        });
+        const response = await ofetch(`${backendUrl}${url}`, createFetchOptions('DELETE'));
         
         console.log("API: DELETE: Response: ", response);
         handleResponse(response);
@@ -159,10 +155,7 @@ export const apiFetching = () => {
       console.log("API: Manual token refresh");
       
       try {
-        const response = await ofetch(`${backendUrl}/api/auth/refresh-token`, {
-          method: 'POST',
-          credentials: 'include',
-        });
+        const response = await ofetch(`${backendUrl}/api/auth/refresh-token`, createFetchOptions('POST'));
         
         console.log("API: Token refresh successful: ", response);
         handleResponse(response);

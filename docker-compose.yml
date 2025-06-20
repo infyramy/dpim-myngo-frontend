@@ -1,0 +1,39 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_BACKEND_URL=${VITE_BACKEND_URL:-https://your-backend-api.com}
+      - VITE_APP_NAME=${VITE_APP_NAME:-myNGO}
+      - VITE_ENVIRONMENT=production
+      - VITE_ENABLE_ANALYTICS=${VITE_ENABLE_ANALYTICS:-false}
+      - VITE_ENABLE_DARK_MODE=${VITE_ENABLE_DARK_MODE:-true}
+      - VITE_ENABLE_NOTIFICATIONS=${VITE_ENABLE_NOTIFICATIONS:-true}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Development service (optional)
+  dev:
+    profiles: ["dev"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: pnpm run dev
+    environment:
+      - VITE_BACKEND_URL=${VITE_BACKEND_URL:-http://localhost:3001}
+      - VITE_ENVIRONMENT=development
+      - VITE_ENABLE_DEV_TOOLS=true 

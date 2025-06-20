@@ -5,17 +5,16 @@ import { ref, reactive, watch, computed } from 'vue';
  */
 export interface AppConfig {
   environment: string;
+  app: {
+    name: string;
+    description: string;
+    version: string;
+    url: string;
+  };
   api: {
     url: string;
     timeout: number;
     retries: number;
-  };
-  database: {
-    host: string;
-    port: number;
-    user: string;
-    password: string;
-    name: string;
   };
   email: {
     plunkApiKey: string;
@@ -36,23 +35,22 @@ export interface AppConfig {
  */
 const defaultConfig: AppConfig = {
   environment: 'development',
+  app: {
+    name: 'myNGO',
+    description: 'NGO Management Platform',
+    version: '1.0.0',
+    url: 'http://localhost:5173',
+  },
   api: {
-    url: 'http://localhost:3000/api',
+    url: 'http://localhost:3001',
     timeout: 30000,
     retries: 3,
-  },
-  database: {
-    host: 'localhost',
-    port: 5432,
-    user: 'postgres',
-    password: 'postgres',
-    name: 'jboilerplate_dev',
   },
   email: {
     plunkApiKey: '',
     mailjetApiKey: '',
     mailjetSecretKey: '',
-    defaultFromEmail: 'no-reply@jboilerplate.com',
+    defaultFromEmail: 'no-reply@myngo.com',
   },
   analytics: {
     umamiWebsiteId: '',
@@ -67,6 +65,9 @@ const defaultConfig: AppConfig = {
     adminDashboard: true,
     userManagement: true,
     emailService: false,
+    pwa: false,
+    impersonation: false,
+    otpVerification: false,
   },
 };
 
@@ -91,17 +92,16 @@ const getEnvVar = (key: string): string | undefined => {
 const loadConfigFromEnv = (): Partial<AppConfig> => {
   return {
     environment: getEnvVar('VITE_ENVIRONMENT') || defaultConfig.environment,
+    app: {
+      name: getEnvVar('VITE_APP_NAME') || defaultConfig.app.name,
+      description: getEnvVar('VITE_APP_DESCRIPTION') || defaultConfig.app.description,
+      version: getEnvVar('VITE_APP_VERSION') || defaultConfig.app.version,
+      url: getEnvVar('VITE_APP_URL') || defaultConfig.app.url,
+    },
     api: {
-      url: getEnvVar('VITE_API_URL') || defaultConfig.api.url,
+      url: getEnvVar('VITE_BACKEND_URL') || defaultConfig.api.url,
       timeout: Number(getEnvVar('VITE_API_TIMEOUT')) || defaultConfig.api.timeout,
       retries: Number(getEnvVar('VITE_API_RETRIES')) || defaultConfig.api.retries,
-    },
-    database: {
-      host: getEnvVar('VITE_DB_HOST') || defaultConfig.database.host,
-      port: Number(getEnvVar('VITE_DB_PORT')) || defaultConfig.database.port,
-      user: getEnvVar('VITE_DB_USER') || defaultConfig.database.user,
-      password: getEnvVar('VITE_DB_PASSWORD') || defaultConfig.database.password,
-      name: getEnvVar('VITE_DB_NAME') || defaultConfig.database.name,
     },
     email: {
       plunkApiKey: getEnvVar('VITE_PLUNK_API_KEY') || defaultConfig.email.plunkApiKey,
@@ -112,7 +112,19 @@ const loadConfigFromEnv = (): Partial<AppConfig> => {
     analytics: {
       umamiWebsiteId: getEnvVar('VITE_UMAMI_WEBSITE_ID') || defaultConfig.analytics.umamiWebsiteId,
       umamiUrl: getEnvVar('VITE_UMAMI_URL') || defaultConfig.analytics.umamiUrl,
-      enabled: !!getEnvVar('VITE_UMAMI_WEBSITE_ID') && !!getEnvVar('VITE_UMAMI_URL'),
+      enabled: (getEnvVar('VITE_ENABLE_ANALYTICS') === 'true') || (!!getEnvVar('VITE_UMAMI_WEBSITE_ID') && !!getEnvVar('VITE_UMAMI_URL')),
+    },
+    features: {
+      darkMode: getEnvVar('VITE_ENABLE_DARK_MODE') === 'true' || getEnvVar('VITE_FEATURE_DARKMODE') === 'true' || defaultConfig.features.darkMode,
+      multilingualSupport: getEnvVar('VITE_FEATURE_MULTILINGUALSUPPORT') === 'true' || defaultConfig.features.multilingualSupport,
+      notifications: getEnvVar('VITE_ENABLE_NOTIFICATIONS') === 'true' || getEnvVar('VITE_FEATURE_NOTIFICATIONS') === 'true' || defaultConfig.features.notifications,
+      analytics: getEnvVar('VITE_ENABLE_ANALYTICS') === 'true' || getEnvVar('VITE_FEATURE_ANALYTICS') === 'true' || defaultConfig.features.analytics,
+      adminDashboard: getEnvVar('VITE_FEATURE_ADMINDASHBOARD') === 'true' || defaultConfig.features.adminDashboard,
+      userManagement: getEnvVar('VITE_FEATURE_USERMANAGEMENT') === 'true' || defaultConfig.features.userManagement,
+      emailService: getEnvVar('VITE_FEATURE_EMAILSERVICE') === 'true' || defaultConfig.features.emailService,
+      pwa: getEnvVar('VITE_ENABLE_PWA') === 'true' || defaultConfig.features.pwa,
+      impersonation: getEnvVar('VITE_ENABLE_IMPERSONATION') === 'true' || defaultConfig.features.impersonation,
+      otpVerification: getEnvVar('VITE_ENABLE_OTP_VERIFICATION') === 'true' || defaultConfig.features.otpVerification,
     },
   };
 };
@@ -130,35 +142,18 @@ export class ConfigService {
     this._config = {
       ...defaultConfig,
       ...loadConfigFromEnv(),
-      features: { ...defaultConfig.features },
     };
 
-    // Initialize features based on environment variables
-    this.initializeFeatureFlags();
+    // Update features with environment-loaded values
+    Object.assign(this._features, this._config.features);
     
     // Log configuration in development
     if (this._config.environment === 'development') {
       console.log('[Config] Initialized with:', {
         ...this._config,
-        database: { ...this._config.database, password: '***' }, // Hide sensitive data
-        email: { ...this._config.email, plunkApiKey: '***' }, // Hide sensitive data
+        email: { ...this._config.email, plunkApiKey: this._config.email.plunkApiKey ? '***' : '' }, // Hide sensitive data
       });
     }
-  }
-
-  /**
-   * Initialize feature flags from environment variables
-   */
-  private initializeFeatureFlags(): void {
-    // Try to load features from environment variables (format: VITE_FEATURE_FEATURE_NAME=true/false)
-    Object.keys(this._features).forEach(featureKey => {
-      const envKey = `VITE_FEATURE_${featureKey.toUpperCase()}`;
-      const envValue = getEnvVar(envKey);
-      
-      if (envValue !== undefined) {
-        this._features[featureKey] = envValue === 'true';
-      }
-    });
   }
 
   /**
@@ -183,17 +178,17 @@ export class ConfigService {
   }
 
   /**
+   * Get app configuration
+   */
+  get app(): AppConfig['app'] {
+    return this._config.app;
+  }
+
+  /**
    * Get API configuration
    */
   get api(): AppConfig['api'] {
     return this._config.api;
-  }
-
-  /**
-   * Get database configuration
-   */
-  get database(): AppConfig['database'] {
-    return this._config.database;
   }
 
   /**
@@ -211,35 +206,35 @@ export class ConfigService {
   }
 
   /**
-   * Check if a feature flag is enabled
+   * Check if a feature is enabled
    */
   isFeatureEnabled(featureName: string): boolean {
-    return !!this._features[featureName];
+    return this._features[featureName] ?? false;
   }
 
   /**
-   * Get all feature flags
+   * Get all features
    */
   get features(): Record<string, boolean> {
-    return { ...this._features };
+    return this._features;
   }
 
   /**
-   * Enable a feature flag at runtime
+   * Enable a feature
    */
   enableFeature(featureName: string): void {
     this._features[featureName] = true;
   }
 
   /**
-   * Disable a feature flag at runtime
+   * Disable a feature
    */
   disableFeature(featureName: string): void {
     this._features[featureName] = false;
   }
 
   /**
-   * Toggle a feature flag at runtime
+   * Toggle a feature
    */
   toggleFeature(featureName: string): boolean {
     this._features[featureName] = !this._features[featureName];
@@ -247,23 +242,21 @@ export class ConfigService {
   }
 
   /**
-   * Set a runtime configuration value
+   * Set runtime configuration
    */
   setRuntimeConfig(key: string, value: any): void {
     this._runtimeConfig[key] = value;
   }
 
   /**
-   * Get a runtime configuration value
+   * Get runtime configuration
    */
   getRuntimeConfig<T>(key: string, defaultValue?: T): T {
-    return this._runtimeConfig[key] !== undefined 
-      ? this._runtimeConfig[key] 
-      : (defaultValue as T);
+    return this._runtimeConfig[key] ?? defaultValue;
   }
 
   /**
-   * Clear all runtime configuration
+   * Clear runtime configuration
    */
   clearRuntimeConfig(): void {
     Object.keys(this._runtimeConfig).forEach(key => {
@@ -272,8 +265,25 @@ export class ConfigService {
   }
 }
 
-// Export a singleton instance
+/**
+ * Global configuration service instance
+ */
 export const configService = new ConfigService();
+
+/**
+ * Export config object for direct access
+ */
+export const config = {
+  app: configService.app,
+  api: configService.api,
+  email: configService.email,
+  analytics: configService.analytics,
+  environment: configService.environment,
+  isDevelopment: configService.isDevelopment,
+  isProduction: configService.isProduction,
+  features: configService.features,
+  isFeatureEnabled: (featureName: string) => configService.isFeatureEnabled(featureName),
+};
 
 /**
  * UI-specific configuration structure
