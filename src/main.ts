@@ -13,16 +13,19 @@ import "./assets/theme-customizer.css";
 // Set API URL globally (use VITE_BACKEND_URL for consistency)
 window.API_URL = import.meta.env.VITE_BACKEND_URL || "https://api-myngo.0o0.my";
 
-// Initialize theme based on user preference
+// Force green theme and small radius on first load
 const initializeTheme = () => {
+  // Set green theme always
+  document.documentElement.setAttribute("data-color-scheme", "green");
+  // Set small radius
+  document.documentElement.style.setProperty("--radius", "0.25rem");
+
+  // Light mode by default, but remember user preference
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "dark") {
     document.documentElement.classList.add("dark");
   } else if (savedTheme === "light") {
     document.documentElement.classList.remove("dark");
-  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    document.documentElement.classList.add("dark");
-    localStorage.setItem("theme", "dark");
   } else {
     document.documentElement.classList.remove("dark");
     localStorage.setItem("theme", "light");

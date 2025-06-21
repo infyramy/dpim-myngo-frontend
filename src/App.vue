@@ -23,6 +23,11 @@ onMounted(() => {
   console.log("App mounted with route:", route.path);
   console.log("Current layout:", layout.value);
   console.log("Authentication status:", authStore.isAuthenticated ? "Authenticated" : "Not authenticated");
+
+  // Force green theme system-wide
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('data-color-scheme', 'green');
+  }
 });
 
 watch(route, (newRoute) => {
