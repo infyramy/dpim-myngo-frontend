@@ -24,9 +24,20 @@ onMounted(() => {
   console.log("Current layout:", layout.value);
   console.log("Authentication status:", authStore.isAuthenticated ? "Authenticated" : "Not authenticated");
 
-  // Force green theme system-wide
+  // Force green theme and small radius system-wide
   if (typeof document !== 'undefined') {
     document.documentElement.setAttribute('data-color-scheme', 'green');
+    document.documentElement.style.setProperty('--radius', '0.25rem');
+    // Light mode by default, but remember user preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else if (savedTheme === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
   }
 });
 
@@ -34,6 +45,18 @@ watch(route, (newRoute) => {
   console.log("Route changed to:", newRoute.path);
   console.log("New layout:", route.meta.layout);
   
+  // Re-apply theme and radius on route change
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('data-color-scheme', 'green');
+    document.documentElement.style.setProperty('--radius', '0.25rem');
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }
+
   // Check if user is trying to access a protected route
   if (newRoute.meta.requiresAuth && !authStore.isAuthenticated) {
     console.log("User trying to access protected route without authentication");
