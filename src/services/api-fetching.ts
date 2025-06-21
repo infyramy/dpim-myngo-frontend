@@ -1,8 +1,8 @@
 import { ofetch } from "ofetch";
 import { useAuthStore } from "@/stores/auth";
 
-// const backendUrl = "http://localhost:3001"
-const backendUrl = "https://api-myngo.0o0.my";
+// Use VITE_BACKEND_URL from environment variables, fallback to default if not set
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://api-myngo.0o0.my";
 
 // API configuration constants
 const apiTimeout = 30000; // 30 seconds

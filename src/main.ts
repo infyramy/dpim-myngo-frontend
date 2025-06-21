@@ -10,8 +10,8 @@ import "./assets/index.css";
 import "./assets/transitions.css";
 import "./assets/theme-customizer.css";
 
-// Set API URL globally
-window.API_URL = import.meta.env.VITE_API_URL;
+// Set API URL globally (use VITE_BACKEND_URL for consistency)
+window.API_URL = import.meta.env.VITE_BACKEND_URL || "https://api-myngo.0o0.my";
 
 // Initialize theme based on user preference
 const initializeTheme = () => {
