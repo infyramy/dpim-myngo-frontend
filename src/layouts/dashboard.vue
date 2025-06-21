@@ -2,6 +2,7 @@
 import { useNavigationStore } from "@/stores/navigation";
 import { useNotificationStore } from "@/stores/notification";
 import { useAuthStore } from "@/stores/auth";
+import { useTheme } from "@/composables/useTheme";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -53,17 +54,7 @@ const notificationStore = useNotificationStore();
 const authStore = useAuthStore();
 const router = useRouter();
 const showKeyboardShortcuts = ref(false);
-
-// Initialize theme settings on mount
-onMounted(() => {
-  // Apply saved color scheme
-  const savedColorScheme = localStorage.getItem("theme-color") || "green";
-  document.documentElement.setAttribute("data-color-scheme", savedColorScheme);
-
-  // Apply saved radius
-  const savedRadius = localStorage.getItem("theme-radius") || "0.5";
-  document.documentElement.style.setProperty("--radius", `${savedRadius}rem`);
-});
+const { setTheme, theme } = useTheme();
 
 // Use navigation from the store
 const navigation = computed(() => navigationStore.navigation);
@@ -115,7 +106,8 @@ function handleKeyDown(e: KeyboardEvent) {
 }
 
 function toggleMode() {
-  mode.value = mode.value === "dark" ? "light" : "dark";
+  const newTheme = theme.value === "dark" ? "light" : "dark";
+  setTheme(newTheme);
 }
 
 // Register and unregister keyboard event listeners
@@ -302,7 +294,7 @@ onUnmounted(() => {
               variant="secondary"
               @click="toggleMode"
             >
-              <Sun v-if="mode === 'dark'" class="h-4 w-4" />
+              <Sun v-if="theme === 'dark'" class="h-4 w-4" />
 
               <Moon v-else class="h-4 w-4" />
             </Button>

@@ -32,7 +32,7 @@
         }
       });
 
-      // Theme initialization script
+      // Theme initialization script - Fixed to respect localStorage and default to light
       (function () {
         const getThemePreference = function () {
           if (
@@ -41,9 +41,9 @@
           ) {
             return localStorage.getItem("theme");
           }
-          return window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light";
+          // Default to light mode instead of system preference
+          localStorage.setItem("theme", "light");
+          return "light";
         };
 
         const theme = getThemePreference();

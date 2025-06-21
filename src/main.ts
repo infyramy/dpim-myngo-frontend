@@ -5,6 +5,7 @@ import i18n from "./plugins/i18n";
 import analyticsPlugin from "./plugins/analytics";
 import configPlugin from "./plugins/config";
 import { useAuthStore } from "./stores/auth";
+import { useTheme } from "./composables/useTheme";
 import App from "./App.vue";
 import "./assets/index.css";
 import "./assets/transitions.css";
@@ -13,26 +14,8 @@ import "./assets/theme-customizer.css";
 // Set API URL globally (use VITE_BACKEND_URL for consistency)
 window.API_URL = import.meta.env.VITE_BACKEND_URL || "https://api-myngo.0o0.my";
 
-// Force green theme and small radius on first load
-const initializeTheme = () => {
-  // Set green theme always
-  document.documentElement.setAttribute("data-color-scheme", "green");
-  // Set small radius
-  document.documentElement.style.setProperty("--radius", "0.25rem");
-
-  // Light mode by default, but remember user preference
-  const savedTheme = localStorage.getItem("theme");
-  if (savedTheme === "dark") {
-    document.documentElement.classList.add("dark");
-  } else if (savedTheme === "light") {
-    document.documentElement.classList.remove("dark");
-  } else {
-    document.documentElement.classList.remove("dark");
-    localStorage.setItem("theme", "light");
-  }
-};
-
-// Initialize theme
+// Initialize theme using centralized system
+const { initializeTheme } = useTheme();
 initializeTheme();
 
 // Create the app with Vue

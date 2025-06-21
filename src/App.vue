@@ -2,6 +2,7 @@
 import { computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import { useTheme } from "@/composables/useTheme";
 import DashboardLayout from "@/layouts/dashboard.vue";
 import BlankLayout from "@/layouts/blank.vue";
 import FormsLayout from "@/layouts/forms.vue";
@@ -11,6 +12,7 @@ import { Toaster } from "@/components/ui/sonner";
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
+const { applyTheme, theme, getCurrentTheme } = useTheme();
 
 const layout = computed<"dashboard" | "blank" | "forms" | "auth">(() => {
   // Simplified layout logic for debugging
@@ -24,37 +26,18 @@ onMounted(() => {
   console.log("Current layout:", layout.value);
   console.log("Authentication status:", authStore.isAuthenticated ? "Authenticated" : "Not authenticated");
 
-  // Force green theme and small radius system-wide
-  if (typeof document !== 'undefined') {
-    document.documentElement.setAttribute('data-color-scheme', 'green');
-    document.documentElement.style.setProperty('--radius', '0.25rem');
-    // Light mode by default, but remember user preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }
+  // Apply current theme settings on mount
+  applyTheme(getCurrentTheme());
 });
 
 watch(route, (newRoute) => {
   console.log("Route changed to:", newRoute.path);
   console.log("New layout:", route.meta.layout);
   
-  // Re-apply theme and radius on route change
-  if (typeof document !== 'undefined') {
-    document.documentElement.setAttribute('data-color-scheme', 'green');
-    document.documentElement.style.setProperty('--radius', '0.25rem');
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }
+  // Use getCurrentTheme() to ensure we get the latest theme value from localStorage
+  const currentTheme = getCurrentTheme();
+  console.log(`Route change - applying theme: ${currentTheme}`);
+  applyTheme(currentTheme);
 
   // Check if user is trying to access a protected route
   if (newRoute.meta.requiresAuth && !authStore.isAuthenticated) {
