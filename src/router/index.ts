@@ -42,6 +42,7 @@ router.beforeEach(async (to, from, next) => {
     requiresAuth,
     isAuthenticated: authStore.getUser()?.isAuthenticated || false,
     userRole: authStore.getUser()?.user_type || "none",
+    isOperator: authStore.getUser()?.is_operator || false,
   });
 
   // Special case for home route (/) - redirect to login if not authenticated
@@ -52,9 +53,10 @@ router.beforeEach(async (to, from, next) => {
     } else {
       // If authenticated, redirect to appropriate dashboard based on role
       const userType = authStore.getUser()?.user_type as UserRole;
-      let dashboardPath = getDashboardPathByRole(userType);
+      const isOperator = authStore.getUser()?.is_operator;
+      let dashboardPath = getDashboardPathByRole(userType, isOperator);
       console.log(
-        `Redirecting from home to ${dashboardPath} (authenticated as ${userType})`
+        `Redirecting from home to ${dashboardPath} (authenticated as ${userType}${isOperator ? ' with operator privileges' : ''})`
       );
       return next(dashboardPath);
     }
@@ -68,7 +70,8 @@ router.beforeEach(async (to, from, next) => {
       (to.name === "login" || to.name === "register")
     ) {
       const userType = authStore.getUser()?.user_type as UserRole;
-      const dashboardPath = getDashboardPathByRole(userType);
+      const isOperator = authStore.getUser()?.is_operator;
+      const dashboardPath = getDashboardPathByRole(userType, isOperator);
 
       // Prevent redirect loop by checking if we're already going to the dashboard
       if (to.path === dashboardPath) {
@@ -104,16 +107,24 @@ router.beforeEach(async (to, from, next) => {
 
   // Check role-based access
   if (allowedRoles && authStore.getUser()) {
-    if (!allowedRoles.includes(authStore.getUser()?.user_type)) {
+    const userType = authStore.getUser()?.user_type;
+    const isOperator = authStore.getUser()?.is_operator;
+    
+    // Check if user has the required role
+    let hasAccess = allowedRoles.includes(userType);
+    
+    // For operator routes, also check if user is an operator
+    if (to.path.startsWith('/operator/') && userType === 'user') {
+      hasAccess = isOperator;
+    }
+    
+    if (!hasAccess) {
       console.log(
-        `User role ${
-          authStore.getUser()?.user_type
-        } not authorized for route: ${to.path}`
+        `User role ${userType}${isOperator ? ' (operator)' : ''} not authorized for route: ${to.path}`
       );
 
       // Redirect to appropriate dashboard instead of 404
-      const userType = authStore.getUser()?.user_type as UserRole;
-      const dashboardPath = getDashboardPathByRole(userType);
+      const dashboardPath = getDashboardPathByRole(userType, isOperator);
       console.log(`Redirecting to ${dashboardPath}`);
       return next(dashboardPath);
     }
@@ -132,6 +143,7 @@ router.afterEach((to) => {
   const authStore = useAuthStore();
   if (authStore.getUser()?.isAuthenticated && authStore.getUser()) {
     const userType = authStore.getUser()?.user_type as UserRole;
+    const isOperator = authStore.getUser()?.is_operator;
 
     // Specific role-based prefetching
     switch (userType) {
@@ -142,11 +154,22 @@ router.afterEach((to) => {
         });
         break;
       case "user":
-        prefetchRouteComponents(to.path, {
+        const prefetchComponents = {
           dashboard: () => import("@/pages/user/dashboard/index.vue"),
           profile: () => import("@/pages/profile/index.vue"),
           settings: () => import("@/pages/setting/index.vue"),
-        });
+        };
+        
+        // Also prefetch operator components if user is an operator
+        if (isOperator) {
+          Object.assign(prefetchComponents, {
+            operatorDashboard: () => import("@/pages/operator/dashboard/index.vue"),
+            operatorMembers: () => import("@/pages/operator/members/index.vue"),
+            operatorApplications: () => import("@/pages/operator/applications/index.vue"),
+          });
+        }
+        
+        prefetchRouteComponents(to.path, prefetchComponents);
         break;
       // Add other roles as needed
     }
@@ -154,15 +177,15 @@ router.afterEach((to) => {
 });
 
 // Helper function to get dashboard path by role
-function getDashboardPathByRole(role: UserRole): string {
+function getDashboardPathByRole(role: UserRole, isOperator?: boolean): string {
   switch (role) {
     case "superadmin":
       return "/superadmin/dashboard";
     case "admin":
       return "/admin/dashboard";
-    case "operator":
-      return "/operator/dashboard";
     case "user":
+      // If user is an operator, they can choose between user and operator dashboard
+      // For now, default to user dashboard, but they can navigate to operator dashboard
       return "/user/dashboard";
     default:
       return "/login";

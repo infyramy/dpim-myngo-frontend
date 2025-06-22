@@ -47,6 +47,7 @@ import {
   User,
 } from "lucide-vue-next";
 import ImpersonationBanner from "@/components/ImpersonationBanner.vue";
+import ViewSwitcher from "@/components/ViewSwitcher.vue";
 
 // Pass { disableTransition: false } to enable transitions
 const mode = ref(useColorMode());
@@ -161,6 +162,7 @@ onUnmounted(() => {
             class="h-20 w-auto bg-muted rounded-lg"
           />
         </div>
+        <!-- <ViewSwitcher /> -->
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup v-for="group in navigation" :key="group.title">
@@ -253,9 +255,9 @@ onUnmounted(() => {
               'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-800':
                 authStore.getUser()?.user_type === 'admin',
               'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800':
-                authStore.getUser()?.user_type === 'operator',
+                authStore.getUser()?.user_type === 'user' && authStore.getUser()?.is_operator,
               'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-800':
-                authStore.getUser()?.user_type === 'user',
+                authStore.getUser()?.user_type === 'user' && !authStore.getUser()?.is_operator,
             }"
           >
             <div
@@ -263,20 +265,20 @@ onUnmounted(() => {
               :class="{
                 'bg-amber-500': authStore.getUser()?.user_type === 'superadmin',
                 'bg-blue-500': authStore.getUser()?.user_type === 'admin',
-                'bg-green-500': authStore.getUser()?.user_type === 'operator',
-                'bg-gray-500': authStore.getUser()?.user_type === 'user',
+                'bg-green-500': authStore.getUser()?.user_type === 'user' && authStore.getUser()?.is_operator,
+                'bg-gray-500': authStore.getUser()?.user_type === 'user' && !authStore.getUser()?.is_operator,
               }"
             ></div>
             <User class="h-4 w-4" />
             <span
               class="capitalize"
-              v-if="authStore.getUser()?.user_type != 'operator'"
+              v-if="!(authStore.getUser()?.user_type === 'user' && authStore.getUser()?.is_operator)"
               >{{ authStore.getUser()?.user_type }}</span
             >
             <span class="capitalize" v-else>State Admin</span>
             <div
               class="ml-auto"
-              v-if="authStore.getUser()?.user_type != 'operator'"
+              v-if="!(authStore.getUser()?.user_type === 'user' && authStore.getUser()?.is_operator)"
             >
               <div
                 class="text-xs px-1.5 py-0.5 rounded font-medium"
@@ -286,9 +288,9 @@ onUnmounted(() => {
                   'bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100':
                     authStore.getUser()?.user_type === 'admin',
                   'bg-green-200 dark:bg-green-800 text-green-900 dark:text-green-100':
-                    authStore.getUser()?.user_type === 'operator',
+                    authStore.getUser()?.user_type === 'user' && authStore.getUser()?.is_operator,
                   'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100':
-                    authStore.getUser()?.user_type === 'user',
+                    authStore.getUser()?.user_type === 'user' && !authStore.getUser()?.is_operator,
                 }"
               >
                 {{
@@ -296,7 +298,7 @@ onUnmounted(() => {
                     ? "SUPER"
                     : authStore.getUser()?.user_type === "admin"
                     ? "ADMIN"
-                    : authStore.getUser()?.user_type === "operator"
+                    : authStore.getUser()?.user_type === "user" && authStore.getUser()?.is_operator
                     ? "OP"
                     : "USER"
                 }}
@@ -304,7 +306,7 @@ onUnmounted(() => {
             </div>
             <div v-else class="ml-auto">
               <img
-                :src="authStore.getOperatorStates()?.state_flag"
+                :src="authStore.getOperatorStates()?.state_flag || authStore.getUser()?.operator_states?.state_flag"
                 alt=""
                 class="h-4 w-4 rounded-full"
               />

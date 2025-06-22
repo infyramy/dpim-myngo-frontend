@@ -2,8 +2,9 @@ interface User {
   id: string;
   email: string;
   fullname: string;
-  user_type: "superadmin" | "admin" | "operator" | "user";
+  user_type: "superadmin" | "admin" | "user";
   avatar: string;
+  is_operator?: boolean;
 }
 
 export const exampleUsers: User[] = [
@@ -22,11 +23,12 @@ export const exampleUsers: User[] = [
     avatar: "https://i.pravatar.cc/300?img=2",
   },
   {
-    id: "operator_1",
+    id: "user_operator_1",
     email: "operator@example.com",
     fullname: "Operator User",
-    user_type: "operator",
+    user_type: "user",
     avatar: "https://i.pravatar.cc/300?img=4",
+    is_operator: true,
   },
   {
     id: "user_1",
@@ -38,7 +40,10 @@ export const exampleUsers: User[] = [
 ];
 
 // Helper function to get a user by role
-export const getUserByRole = (role: User["user_type"]): User | undefined => {
+export const getUserByRole = (role: User["user_type"], isOperator?: boolean): User | undefined => {
+  if (role === "user" && isOperator !== undefined) {
+    return exampleUsers.find((user: User) => user.user_type === role && user.is_operator === isOperator);
+  }
   return exampleUsers.find((user: User) => user.user_type === role);
 };
 

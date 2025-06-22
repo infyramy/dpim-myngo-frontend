@@ -277,15 +277,24 @@ export const useNavigationStore = defineStore("navigation", () => {
   const navigation = computed(() => {
     // Use the reactive user from auth store instead of localStorage
     const userType = authStore.user?.user_type || authStore.getUser()?.user_type;
+    const isOperator = authStore.user?.is_operator || authStore.getUser()?.is_operator;
 
     switch (userType) {
       case "superadmin":
         return superadminNavigation;
       case "admin":
         return adminNavigation;
-      case "operator":
-        return operatorNavigation;
       case "user":
+        if (isOperator) {
+          // If user is an operator, combine both user and operator navigation
+          return [
+            ...userNavigation,
+            {
+              title: "Operator",
+              menu: operatorNavigation[0].menu,
+            },
+          ];
+        }
         return userNavigation;
       default:
         return [];

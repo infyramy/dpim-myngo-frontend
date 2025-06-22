@@ -6,7 +6,7 @@ export const operatorRoutes: RouteRecordRaw[] = [
     redirect: "/operator/dashboard",
     meta: {
       requiresAuth: true,
-      roles: ["operator"],
+      roles: ["user"],
       layout: "dashboard",
     },
   },
@@ -16,7 +16,7 @@ export const operatorRoutes: RouteRecordRaw[] = [
     component: () => import("@/pages/operator/dashboard/index.vue"),
     meta: {
       requiresAuth: true,
-      roles: ["operator"],
+      roles: ["user"],
       layout: "dashboard",
     },
   },
@@ -26,7 +26,7 @@ export const operatorRoutes: RouteRecordRaw[] = [
     component: () => import("@/pages/operator/members/index.vue"),
     meta: {
       requiresAuth: true,
-      roles: ["operator"],
+      roles: ["user"],
       layout: "dashboard",
     },
   },
@@ -36,7 +36,7 @@ export const operatorRoutes: RouteRecordRaw[] = [
     component: () => import("@/pages/operator/applications/index.vue"),
     meta: {
       requiresAuth: true,
-      roles: ["operator"],
+      roles: ["user"],
       layout: "dashboard",
     },
   },

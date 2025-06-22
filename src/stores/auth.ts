@@ -35,6 +35,13 @@ export const useAuthStore = defineStore("auth", () => {
   };
 
   /**
+   * Check if user has operator privileges
+   */
+  const isOperator = computed(() => {
+    return user.value?.is_operator === true;
+  });
+
+  /**
    * Check if user has permission to access a resource
    */
   const hasPermission = (permission: string): boolean => {
@@ -50,28 +57,41 @@ export const useAuthStore = defineStore("auth", () => {
         "settings:write",
         "system:read",
         "system:write",
+        "operator:read",
+        "operator:write",
       ],
       admin: ["user:read", "user:write", "settings:read", "settings:write"],
-      operator: [
-        "user:read",
-        "user:write",
-        "team:read",
-        "team:write",
-        "project:read",
-        "project:write",
-      ],
       user: ["user:read"],
     };
+
+    // Additional permissions for operators
+    const operatorPermissions = [
+      "user:read",
+      "user:write",
+      "team:read",
+      "team:write",
+      "project:read",
+      "project:write",
+      "operator:read",
+      "operator:write",
+    ];
 
     // Superadmin has all permissions
     if (user.value?.user_type === "superadmin") {
       return true;
     }
 
-    // Check if user's role has the requested permission
-    return user.value
+    // Check base role permissions
+    let hasRolePermission = user.value
       ? rolePermissions[user.value.user_type].includes(permission)
       : false;
+
+    // Check operator permissions if user is an operator
+    if (user.value?.is_operator && operatorPermissions.includes(permission)) {
+      hasRolePermission = true;
+    }
+
+    return hasRolePermission;
   };
 
   /**
@@ -130,6 +150,7 @@ export const useAuthStore = defineStore("auth", () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("user");
     localStorage.removeItem("csrf_token");
+    localStorage.removeItem("operator_states");
   };
 
   const setUser = (userData: any) => {
@@ -140,6 +161,8 @@ export const useAuthStore = defineStore("auth", () => {
       email: userData.user.user_email,
       user_type: userData.user.user_role,
       avatar: userData.user.avatar || "",
+      is_operator: userData.is_operator || false,
+      operator_states: userData.operator_states || null,
     };
 
     // Also update localStorage (keeping the existing structure for compatibility)
@@ -151,11 +174,18 @@ export const useAuthStore = defineStore("auth", () => {
         user_type: userData.user.user_role,
         access_token: userData.access_token,
         isAuthenticated: true,
+        is_operator: userData.is_operator || false,
+        operator_states: userData.operator_states || null,
       })
     );
 
     // Update access token
     accessToken.value = userData.access_token;
+
+    // Store operator states if available
+    if (userData.operator_states) {
+      localStorage.setItem("operator_states", JSON.stringify(userData.operator_states));
+    }
   };
 
   const getUser = () => {
@@ -173,6 +203,7 @@ export const useAuthStore = defineStore("auth", () => {
     localStorage.removeItem("user");
     localStorage.removeItem("access_token");
     localStorage.removeItem("csrf_token");
+    localStorage.removeItem("operator_states");
   };
 
   const setOperatorStates = (states: any) => {
@@ -195,6 +226,7 @@ export const useAuthStore = defineStore("auth", () => {
     isInitialized,
     hasRole,
     hasPermission,
+    isOperator,
     init,
     setUser,
     getUser,

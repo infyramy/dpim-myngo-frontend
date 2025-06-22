@@ -6,9 +6,15 @@ export interface User {
   avatar: string;
   created_at?: string;
   updated_at?: string;
+  is_operator?: boolean;
+  operator_states?: {
+    state_title: string;
+    state_code: string;
+    state_flag: string;
+  };
 }
 
-export type UserRole = 'superadmin' | 'admin' | 'operator' | 'user';
+export type UserRole = 'superadmin' | 'admin' | 'user';
 
 export interface UserProfile {
   user_id: string;
@@ -31,6 +37,12 @@ export interface UserProfile {
   avatar?: string;
   email_notifications?: boolean;
   sms_notifications?: boolean;
+  is_operator?: boolean;
+  operator_states?: {
+    state_title: string;
+    state_code: string;
+    state_flag: string;
+  };
 }
 
 export interface UpdateProfileRequest {

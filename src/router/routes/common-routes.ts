@@ -7,7 +7,7 @@ export const commonRoutes: RouteRecordRaw[] = [
     component: () => import("@/pages/notifications/index.vue"),
     meta: {
       requiresAuth: true,
-      roles: ["admin", "operator", "user", "superadmin"],
+      roles: ["admin", "user", "superadmin"],
       layout: "dashboard",
       title: "Notifications",
     },
@@ -18,7 +18,7 @@ export const commonRoutes: RouteRecordRaw[] = [
     component: () => import("@/pages/profile/index.vue"),
     meta: {
       requiresAuth: true,
-      roles: ["admin", "operator", "user", "superadmin"],
+      roles: ["admin", "user", "superadmin"],
       layout: "dashboard",
       title: "Profile",
     },
@@ -29,7 +29,7 @@ export const commonRoutes: RouteRecordRaw[] = [
     component: () => import("@/pages/setting/index.vue"),
     meta: {
       requiresAuth: true,
-      roles: ["admin", "operator", "user", "superadmin"],
+      roles: ["admin", "user", "superadmin"],
       layout: "dashboard",
       title: "Settings",
     },

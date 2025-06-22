@@ -38,9 +38,6 @@ function goToDashboard() {
     case "admin":
       router.push("/admin/dashboard");
       break;
-    case "operator":
-      router.push("/operator/dashboard");
-      break;
     case "user":
       router.push("/user/dashboard");
       break;

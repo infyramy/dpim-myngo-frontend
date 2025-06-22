@@ -80,20 +80,20 @@ function startResendCountdown() {
 
 // Utility function to redirect based on user role
 function redirectToDashboard() {
-  const userRole = authStore.getUser().user_type;
+  const userRole = authStore.user?.user_type;
+  const isOperator = authStore.user?.is_operator;
 
   switch (userRole) {
     case "superadmin":
-      router.push("/superadmin/dashboard");
+      router.replace("/superadmin/dashboard");
       break;
     case "admin":
-      router.push("/admin/dashboard");
-      break;
-    case "operator":
-      router.push("/operator/dashboard");
+      router.replace("/admin/dashboard");
       break;
     case "user":
-      router.push("/user/dashboard");
+      // For users, default to user dashboard
+      // They can navigate to operator dashboard if they are an operator
+      router.replace("/user/dashboard");
       break;
     default:
       // If role is unknown, redirect to login and clear auth
@@ -125,8 +125,8 @@ async function verifyOtp() {
     // Set authstore
     authStore.setUser(response.data);
 
-    // Set operator stores
-    if (response.data.user.user_role === "operator") {
+    // Set operator stores if user is an operator
+    if (response.data.is_operator) {
       authStore.setOperatorStates(response.data.operator_states);
     }
 

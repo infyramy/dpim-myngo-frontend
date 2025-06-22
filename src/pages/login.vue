@@ -46,9 +46,6 @@ function redirectToDashboard() {
     case "admin":
       router.replace("/admin/dashboard");
       break;
-    case "operator":
-      router.replace("/operator/dashboard");
-      break;
     case "user":
       router.replace("/user/dashboard");
       break;

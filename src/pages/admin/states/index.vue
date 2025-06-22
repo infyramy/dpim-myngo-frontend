@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -13,7 +12,11 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useStates, type State } from "@/composables/useStates";
+import {
+  useStates,
+  type State,
+  type StateAdmin,
+} from "@/composables/useStates";
 import {
   Select,
   SelectContent,
@@ -26,48 +29,40 @@ import { Label } from "@/components/ui/label";
 // States composable
 const {
   states,
+  availableUsers,
   isLoading,
   isSubmitting,
+  isLoadingUsers,
   fetchStatesWithAdmins,
+  fetchAvailableUsers,
   assignAdmin,
-  updateAdmin,
   removeAdmin,
   refreshStates,
 } = useStates();
 
 // Form values for new admin
 const selectedState = ref<string | null>(null);
-const newAdminName = ref("");
-const newAdminEmail = ref("");
+const selectedUser = ref<string | null>(null);
 const isDialogOpen = ref(false);
-const isEditMode = ref(false);
 
-// Edit state
-const editStateId = ref<string | null>(null);
-const editAdminName = ref("");
-const editAdminEmail = ref("");
-const isEditDialogOpen = ref(false);
+// View admins modal
+const isViewAdminsDialogOpen = ref(false);
+const viewAdminsState = ref<State | null>(null);
 
 // Remove confirmation state
 const isRemoveDialogOpen = ref(false);
 const removeStateId = ref<string | null>(null);
+const removeUserId = ref<string | null>(null);
 const removeStateName = ref("");
+const removeUserName = ref("");
 
 // Function to assign new admin
 async function handleAssignAdmin() {
-  console.log(selectedState.value);
-  console.log(newAdminName.value);
-  console.log(newAdminEmail.value);
-
-  if (!selectedState.value || !newAdminName.value || !newAdminEmail.value) {
+  if (!selectedState.value || !selectedUser.value) {
     return;
   }
 
-  const success = await assignAdmin(
-    selectedState.value,
-    newAdminName.value,
-    newAdminEmail.value
-  );
+  const success = await assignAdmin(selectedState.value, selectedUser.value);
 
   if (success) {
     resetForm();
@@ -77,78 +72,74 @@ async function handleAssignAdmin() {
   }
 }
 
-// Function to update admin
-async function handleUpdateAdmin() {
-  if (!editStateId.value || !editAdminName.value || !editAdminEmail.value) {
-    return;
-  }
-
-  const success = await updateAdmin(
-    editStateId.value,
-    editAdminName.value,
-    editAdminEmail.value
-  );
-
-  if (success) {
-    resetEditForm();
-    isEditDialogOpen.value = false;
-    // Refresh the states list
-    await refreshStates();
-  }
+// Function to open view admins modal
+function openViewAdminsDialog(state: State) {
+  viewAdminsState.value = state;
+  isViewAdminsDialogOpen.value = true;
 }
 
 // Function to open remove confirmation dialog
-function openRemoveDialog(state: State) {
+function openRemoveDialog(state: State, admin: StateAdmin) {
   removeStateId.value = state.id;
+  removeUserId.value = admin.adminId;
   removeStateName.value = state.name;
+  removeUserName.value = admin.adminName;
   isRemoveDialogOpen.value = true;
 }
 
 // Function to remove admin
 async function handleRemoveAdmin() {
-  if (!removeStateId.value) return;
+  if (!removeStateId.value || !removeUserId.value) return;
 
-  const success = await removeAdmin(removeStateId.value);
+  const success = await removeAdmin(removeStateId.value, removeUserId.value);
 
   if (success) {
     // Reset remove dialog state
     removeStateId.value = null;
+    removeUserId.value = null;
     removeStateName.value = "";
+    removeUserName.value = "";
     isRemoveDialogOpen.value = false;
-    // Refresh the states list
+
+    isViewAdminsDialogOpen.value = false;
+    // Refresh the states list and update the view modal
     await refreshStates();
+    // Update the view modal state if it's open
+    if (viewAdminsState.value && removeStateId.value) {
+      const updatedState = states.value.find(
+        (s) => s.id === viewAdminsState.value?.id
+      );
+      if (updatedState) {
+        viewAdminsState.value = updatedState;
+      }
+    }
   }
 }
 
 // Reset form values
 function resetForm() {
   selectedState.value = null;
-  newAdminName.value = "";
-  newAdminEmail.value = "";
-  isEditMode.value = false;
-}
-
-// Reset edit form values
-function resetEditForm() {
-  editStateId.value = null;
-  editAdminName.value = "";
-  editAdminEmail.value = "";
+  selectedUser.value = null;
 }
 
 // Open dialog for specific state
-function openAssignDialog(stateId?: string) {
+async function openAssignDialog(stateId?: string) {
   if (stateId) {
     selectedState.value = stateId;
+    // Fetch available users for this state
+    await fetchAvailableUsers(stateId);
   }
   isDialogOpen.value = true;
 }
 
-// Open edit dialog
-function openEditDialog(state: State) {
-  editStateId.value = state.id;
-  editAdminName.value = state.adminName || "";
-  editAdminEmail.value = state.adminEmail || "";
-  isEditDialogOpen.value = true;
+// Handle state selection change
+async function handleStateChange(value: any) {
+  const stateId = value as string;
+  selectedState.value = stateId;
+  selectedUser.value = null;
+  if (stateId) {
+    await fetchAvailableUsers(stateId);
+  }
 }
 
 // Handle refresh
@@ -180,20 +171,24 @@ onMounted(async () => {
             <DialogHeader>
               <DialogTitle>Assign State Administrator</DialogTitle>
               <DialogDescription>
-                Create a new Negeri Admin account for a state branch.
+                Assign an existing user as administrator for a state branch.
               </DialogDescription>
             </DialogHeader>
 
             <div class="grid gap-4 py-4">
               <div class="grid gap-2">
                 <Label for="state">State</Label>
-                <Select v-model="selectedState" required>
+                <Select
+                  :model-value="selectedState"
+                  @update:model-value="handleStateChange"
+                  required
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select" />
+                    <SelectValue placeholder="Select a state" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem
-                      v-for="state in states.filter((s) => !s.isActive)"
+                      v-for="state in states"
                       :key="state.id"
                       :value="state.id"
                     >
@@ -203,25 +198,32 @@ onMounted(async () => {
                 </Select>
               </div>
 
-              <div class="grid gap-2">
-                <Label for="name" class="text-sm font-medium">Admin Name</Label>
-                <Input
-                  id="name"
-                  v-model="newAdminName"
-                  placeholder="Full name of administrator"
-                />
-              </div>
-
-              <div class="grid gap-2">
-                <Label for="email" class="text-sm font-medium"
-                  >Admin Email</Label
+              <div class="grid gap-2" v-if="selectedState">
+                <Label for="user">Available Users</Label>
+                <div v-if="isLoadingUsers" class="flex items-center space-x-2">
+                  <Skeleton class="h-10 w-full" />
+                </div>
+                <Select v-else v-model="selectedUser" required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a user" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem
+                      v-for="user in availableUsers"
+                      :key="user.id"
+                      :value="user.id"
+                    >
+                      {{ user.name }} ({{ user.email }})
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p
+                  v-if="availableUsers.length === 0 && !isLoadingUsers"
+                  class="text-sm text-muted-foreground"
                 >
-                <Input
-                  id="email"
-                  v-model="newAdminEmail"
-                  placeholder="Email address"
-                  type="email"
-                />
+                  No available users found for this state. Only users registered
+                  under this state can be assigned as administrators.
+                </p>
               </div>
             </div>
 
@@ -233,7 +235,10 @@ onMounted(async () => {
               >
                 Cancel
               </Button>
-              <Button @click="handleAssignAdmin" :disabled="isSubmitting">
+              <Button
+                @click="handleAssignAdmin"
+                :disabled="isSubmitting || !selectedState || !selectedUser"
+              >
                 {{ isSubmitting ? "Assigning..." : "Assign Admin" }}
               </Button>
             </DialogFooter>
@@ -242,52 +247,74 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- Edit Dialog -->
-    <Dialog v-model:open="isEditDialogOpen">
-      <DialogContent>
+    <!-- View Admins Modal -->
+    <Dialog v-model:open="isViewAdminsDialogOpen">
+      <DialogContent class="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Edit State Administrator</DialogTitle>
+          <DialogTitle
+            >State Administrators - {{ viewAdminsState?.name }}</DialogTitle
+          >
           <DialogDescription>
-            Update the administrator information for this state.
+            Manage administrators for {{ viewAdminsState?.name }} state.
           </DialogDescription>
         </DialogHeader>
 
-        <div class="grid gap-4 py-4">
-          <div class="grid gap-2">
-            <label for="edit-name" class="text-sm font-medium"
-              >Admin Name</label
+        <div class="py-4">
+          <div
+            v-if="viewAdminsState?.admins.length === 0"
+            class="text-center py-8 text-muted-foreground"
+          >
+            <p>No administrators assigned to this state.</p>
+            <Button
+              class="mt-4"
+              @click="
+                () => {
+                  isViewAdminsDialogOpen = false;
+                  openAssignDialog(viewAdminsState?.id);
+                }
+              "
             >
-            <Input
-              id="edit-name"
-              v-model="editAdminName"
-              placeholder="Full name of administrator"
-            />
+              Assign First Admin
+            </Button>
           </div>
 
-          <div class="grid gap-2">
-            <label for="edit-email" class="text-sm font-medium"
-              >Admin Email</label
+          <div v-else class="space-y-3">
+            <div
+              v-for="admin in viewAdminsState?.admins"
+              :key="admin.adminId"
+              class="flex items-center justify-between p-4 border rounded-lg"
             >
-            <Input
-              id="edit-email"
-              v-model="editAdminEmail"
-              placeholder="Email address"
-              type="email"
-            />
+              <div class="flex-1">
+                <div class="font-medium">{{ admin.adminName }}</div>
+                <div class="text-sm text-muted-foreground">
+                  {{ admin.adminEmail }}
+                </div>
+              </div>
+              <Button
+                variant="destructive"
+                size="sm"
+                @click="openRemoveDialog(viewAdminsState!, admin)"
+                :disabled="isSubmitting"
+              >
+                Remove
+              </Button>
+            </div>
           </div>
         </div>
 
         <DialogFooter>
           <Button
             variant="outline"
-            @click="isEditDialogOpen = false"
-            :disabled="isSubmitting"
+            @click="
+              () => {
+                isViewAdminsDialogOpen = false;
+                openAssignDialog(viewAdminsState?.id);
+              }
+            "
           >
-            Cancel
+            Add Another Admin
           </Button>
-          <Button @click="handleUpdateAdmin" :disabled="isSubmitting">
-            {{ isSubmitting ? "Updating..." : "Update Admin" }}
-          </Button>
+          <Button @click="isViewAdminsDialogOpen = false"> Close </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -298,7 +325,9 @@ onMounted(async () => {
         <DialogHeader>
           <DialogTitle>Remove State Administrator</DialogTitle>
           <DialogDescription>
-            Are you sure you want to remove the administrator for {{ removeStateName }}? This action cannot be undone.
+            Are you sure you want to remove {{ removeUserName }} as
+            administrator for {{ removeStateName }}? This action cannot be
+            undone.
           </DialogDescription>
         </DialogHeader>
 
@@ -310,9 +339,9 @@ onMounted(async () => {
           >
             Cancel
           </Button>
-          <Button 
-            variant="destructive" 
-            @click="handleRemoveAdmin" 
+          <Button
+            variant="destructive"
+            @click="handleRemoveAdmin"
             :disabled="isSubmitting"
           >
             {{ isSubmitting ? "Removing..." : "Remove Admin" }}
@@ -343,8 +372,7 @@ onMounted(async () => {
             <thead>
               <tr class="border-b">
                 <th class="h-10 px-4 text-left font-medium">State</th>
-                <th class="h-10 px-4 text-left font-medium">Admin Name</th>
-                <th class="h-10 px-4 text-left font-medium">Admin Email</th>
+                <th class="h-10 px-4 text-left font-medium">Administrators</th>
                 <th class="h-10 px-4 text-center font-medium">Status</th>
                 <th class="h-10 px-4 text-right font-medium">Actions</th>
               </tr>
@@ -353,10 +381,61 @@ onMounted(async () => {
               <tr v-for="state in states" :key="state.id" class="border-b">
                 <td class="p-4 align-middle font-medium">{{ state.name }}</td>
                 <td class="p-4 align-middle">
-                  {{ state.adminName || "Not assigned" }}
-                </td>
-                <td class="p-4 align-middle">
-                  {{ state.adminEmail || "Not assigned" }}
+                  <button
+                    @click="openViewAdminsDialog(state)"
+                    class="w-full text-left hover:bg-accent hover:text-accent-foreground rounded-lg p-3 transition-all duration-200 border border-transparent hover:border-border"
+                  >
+                    <div class="flex items-center justify-between">
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                          <svg
+                            class="w-4 h-4 text-muted-foreground"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                            />
+                          </svg>
+                          <span class="text-sm font-medium">
+                            {{ state.admins.length }} Administrator{{
+                              state.admins.length !== 1 ? "s" : ""
+                            }}
+                          </span>
+                        </div>
+                        <div class="text-xs text-muted-foreground">
+                          {{
+                            state.admins.length === 0
+                              ? "No admins assigned"
+                              : state.admins.length === 1
+                              ? state.admins[0].adminName
+                              : `${state.admins[0].adminName} + ${
+                                  state.admins.length - 1
+                                } more`
+                          }}
+                        </div>
+                      </div>
+                      <div class="flex items-center text-muted-foreground">
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  </button>
                 </td>
                 <td class="p-4 align-middle text-center">
                   <span
@@ -373,29 +452,11 @@ onMounted(async () => {
                 <td class="p-4 align-middle text-right">
                   <div class="flex justify-end gap-2">
                     <Button
-                      v-if="!state.isActive"
                       variant="outline"
                       size="sm"
                       @click="openAssignDialog(state.id)"
                     >
-                      Assign Admin
-                    </Button>
-                    <Button
-                      v-if="state.isActive"
-                      variant="outline"
-                      size="sm"
-                      @click="openEditDialog(state)"
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      v-if="state.isActive"
-                      variant="destructive"
-                      size="sm"
-                      @click="openRemoveDialog(state)"
-                      :disabled="isSubmitting"
-                    >
-                      Remove
+                      Add Admin
                     </Button>
                   </div>
                 </td>
@@ -403,7 +464,7 @@ onMounted(async () => {
 
               <!-- Empty State -->
               <tr v-if="!isLoading && states.length === 0">
-                <td colspan="5" class="p-8 text-center text-muted-foreground">
+                <td colspan="4" class="p-8 text-center text-muted-foreground">
                   No states found. Please try refreshing the page.
                 </td>
               </tr>

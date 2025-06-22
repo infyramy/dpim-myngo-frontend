@@ -2,36 +2,52 @@ import { ref, computed } from "vue";
 import { apiFetching } from "@/services/api-fetching";
 import { toast } from "vue-sonner";
 
+export interface StateAdmin {
+  adminId: string;
+  adminName: string;
+  adminEmail: string;
+}
+
 export interface State {
   id: string;
   name: string;
   code: string;
   flag?: string;
-  adminId?: string;
-  adminName?: string;
-  adminEmail?: string;
+  admins: StateAdmin[];
   isActive: boolean;
+}
+
+export interface AvailableUser {
+  id: string;
+  name: string;
+  email: string;
 }
 
 export interface StateResponse {
   states: State[];
 }
 
+export interface UsersResponse {
+  users: AvailableUser[];
+}
+
 export function useStates() {
   // State
   const states = ref<State[]>([]);
+  const availableUsers = ref<AvailableUser[]>([]);
   const isLoading = ref(false);
   const isSubmitting = ref(false);
+  const isLoadingUsers = ref(false);
   const error = ref<string | null>(null);
 
   // Computed
   const hasStates = computed(() => states.value.length > 0);
   const statesCount = computed(() => states.value.length);
   const statesWithAdmins = computed(() => 
-    states.value.filter(state => state.adminName && state.adminEmail)
+    states.value.filter(state => state.admins.length > 0)
   );
   const statesWithoutAdmins = computed(() => 
-    states.value.filter(state => !state.adminName || !state.adminEmail)
+    states.value.filter(state => state.admins.length === 0)
   );
 
   /**
@@ -51,10 +67,8 @@ export function useStates() {
         name: state.name,
         code: state.code,
         flag: state.flag,
-        adminId: state.adminId?.toString() || "",
-        adminName: state.adminName || "",
-        adminEmail: state.adminEmail || "",
-        isActive: state.adminName && state.adminEmail ? true : false,
+        admins: state.admins || [],
+        isActive: state.isActive || false,
       }));
 
       states.value = transformedStates;
@@ -67,6 +81,30 @@ export function useStates() {
       throw err;
     } finally {
       isLoading.value = false;
+    }
+  };
+
+  /**
+   * Get available users for a specific state
+   */
+  const fetchAvailableUsers = async (stateId: string) => {
+    try {
+      isLoadingUsers.value = true;
+      error.value = null;
+
+      const api = apiFetching();
+      const response = await api.get(`/states/admin/${stateId}/users`, true);
+
+      availableUsers.value = response.data.users || [];
+      return response.data.users;
+    } catch (err: any) {
+      const errorMessage =
+        err.data?.message || err.message || "Failed to fetch available users";
+      error.value = errorMessage;
+      toast.error("Error", errorMessage);
+      throw err;
+    } finally {
+      isLoadingUsers.value = false;
     }
   };
 
@@ -86,9 +124,7 @@ export function useStates() {
         name: state.title,
         code: state.code,
         flag: state.flag,
-        adminId: "",
-        adminName: "",
-        adminEmail: "",
+        admins: [],
         isActive: false,
       }));
 
@@ -106,18 +142,17 @@ export function useStates() {
   };
 
   /**
-   * Assign admin to a state
+   * Assign existing user as admin to a state
    */
   const assignAdmin = async (
     stateId: string,
-    adminName: string,
-    adminEmail: string
+    userId: string
   ): Promise<boolean> => {
     try {
       isSubmitting.value = true;
       error.value = null;
 
-      if (!stateId || !adminName || !adminEmail) {
+      if (!stateId || !userId) {
         toast.error("Please provide all required information");
         return false;
       }
@@ -127,8 +162,7 @@ export function useStates() {
         "/states/admin/assign",
         {
           stateId,
-          adminName,
-          adminEmail,
+          userId,
         },
         true
       );
@@ -147,7 +181,7 @@ export function useStates() {
   };
 
   /**
-   * Update admin information
+   * Update admin information (keeping for backward compatibility)
    */
   const updateAdmin = async (
     stateId: string,
@@ -187,20 +221,20 @@ export function useStates() {
   };
 
   /**
-   * Remove admin from a state
+   * Remove specific admin from a state
    */
-  const removeAdmin = async (stateId: string): Promise<boolean> => {
+  const removeAdmin = async (stateId: string, userId: string): Promise<boolean> => {
     try {
       isSubmitting.value = true;
       error.value = null;
 
-      if (!stateId) {
-        toast.error("State ID is required");
+      if (!stateId || !userId) {
+        toast.error("State ID and User ID are required");
         return false;
       }
 
       const api = apiFetching();
-      const response = await api.delete(`/states/admin/${stateId}`, true);
+      const response = await api.delete(`/states/admin/${stateId}/${userId}`, true);
 
       toast.success("Admin removed successfully");
       return true;
@@ -234,16 +268,20 @@ export function useStates() {
    */
   const resetState = () => {
     states.value = [];
+    availableUsers.value = [];
     isLoading.value = false;
     isSubmitting.value = false;
+    isLoadingUsers.value = false;
     error.value = null;
   };
 
   return {
     // State
     states,
+    availableUsers,
     isLoading,
     isSubmitting,
+    isLoadingUsers,
     error,
 
     // Computed
@@ -254,6 +292,7 @@ export function useStates() {
 
     // Methods
     fetchStatesWithAdmins,
+    fetchAvailableUsers,
     fetchStates,
     assignAdmin,
     updateAdmin,
