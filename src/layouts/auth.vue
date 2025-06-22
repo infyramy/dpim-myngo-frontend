@@ -78,10 +78,12 @@ function navigateTo(path: string) {
           />
         </div>
         <div class="relative z-20 flex items-center text-lg font-medium">
+          <!-- src="https://www.dpim.org.my/wp-content/uploads/2024/02/Logo-DPIM.png" -->
+
           <img
-            src="https://www.dpim.org.my/wp-content/uploads/2024/02/Logo-DPIM.png"
+            src="@/assets/logo/dpim-logo-1.png"
             alt="logo"
-            class="h-16 w-auto rounded-lg bg-white p-2 shadow"
+            class="h-16"
           />
         </div>
         <div class="relative z-20 mt-auto">
@@ -91,9 +93,7 @@ function navigateTo(path: string) {
             >
               MyNGO
             </h1>
-            <p class="text-green-900">
-              Empowering NGOs for a Better Tomorrow
-            </p>
+            <p class="text-green-900">Empowering NGOs for a Better Tomorrow</p>
           </div>
         </div>
       </div>

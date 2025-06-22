@@ -65,22 +65,22 @@ const navigation = computed(() => navigationStore.navigation);
 // Check if a menu item is active based on current route
 const isMenuItemActive = (item: any): boolean => {
   const currentPath = route.path;
-  
+
   // Exact match
   if (currentPath === item.url) {
     return true;
   }
-  
+
   // Check if current path starts with the menu item URL (for nested routes)
-  if (currentPath.startsWith(item.url) && item.url !== '/') {
+  if (currentPath.startsWith(item.url) && item.url !== "/") {
     return true;
   }
-  
+
   // Check sub-items if they exist
   if (item.items) {
     return item.items.some((subItem: any) => isMenuItemActive(subItem));
   }
-  
+
   return false;
 };
 
@@ -156,11 +156,7 @@ onUnmounted(() => {
     <Sidebar>
       <SidebarHeader>
         <div class="flex items-center justify-center gap-2 mt-4">
-          <img
-            src="https://www.dpim.org.my/wp-content/uploads/2024/02/Logo-DPIM.png"
-            alt="logo"
-            class="h-20 w-auto bg-muted rounded-lg"
-          />
+          <img src="@/assets/logo/dpim-logo-1.png" alt="logo" class="h-16" />
         </div>
         <!-- <ViewSwitcher /> -->
       </SidebarHeader>
@@ -176,11 +172,13 @@ onUnmounted(() => {
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger as-child>
-                  <SidebarMenuButton 
+                  <SidebarMenuButton
                     :tooltip="item.title"
                     :class="{
-                      'bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md transition-all duration-200': isMenuItemActive(item),
-                      'hover:bg-accent hover:text-accent-foreground transition-colors duration-200': !isMenuItemActive(item)
+                      'bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md transition-all duration-200':
+                        isMenuItemActive(item),
+                      'hover:bg-accent hover:text-accent-foreground transition-colors duration-200':
+                        !isMenuItemActive(item),
                     }"
                   >
                     <component
@@ -188,15 +186,18 @@ onUnmounted(() => {
                       v-if="item.icon"
                       :class="{
                         'text-primary-foreground': isMenuItemActive(item),
-                        'text-primary': !isMenuItemActive(item)
+                        'text-primary': !isMenuItemActive(item),
                       }"
                     />
-                    <span :class="{ 'font-semibold': isMenuItemActive(item) }">{{ item.title }}</span>
+                    <span
+                      :class="{ 'font-semibold': isMenuItemActive(item) }"
+                      >{{ item.title }}</span
+                    >
                     <ChevronRight
                       class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
                       :class="{
                         'text-primary-foreground': isMenuItemActive(item),
-                        'text-muted-foreground': !isMenuItemActive(item)
+                        'text-muted-foreground': !isMenuItemActive(item),
                       }"
                     />
                   </SidebarMenuButton>
@@ -207,11 +208,13 @@ onUnmounted(() => {
                       v-for="subItem in item.items"
                       :key="subItem.title"
                     >
-                      <SidebarMenuSubButton 
+                      <SidebarMenuSubButton
                         @click="router.push(subItem.url)"
                         :class="{
-                          'bg-primary/10 text-primary font-medium border-l-2 border-primary hover:bg-primary/20 hover:border-l-4 transition-all duration-200': isMenuItemActive(subItem),
-                          'hover:bg-accent hover:text-accent-foreground transition-colors duration-200': !isMenuItemActive(subItem)
+                          'bg-primary/10 text-primary font-medium border-l-2 border-primary hover:bg-primary/20 hover:border-l-4 transition-all duration-200':
+                            isMenuItemActive(subItem),
+                          'hover:bg-accent hover:text-accent-foreground transition-colors duration-200':
+                            !isMenuItemActive(subItem),
                         }"
                       >
                         <span>{{ subItem.title }}</span>
@@ -226,8 +229,10 @@ onUnmounted(() => {
                 :tooltip="item.title"
                 @click="router.push(item.url)"
                 :class="{
-                  'bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-lg shadow-sm transition-all duration-200': isMenuItemActive(item),
-                  'hover:bg-accent hover:text-accent-foreground transition-colors duration-200': !isMenuItemActive(item)
+                  'bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-lg shadow-sm transition-all duration-200':
+                    isMenuItemActive(item),
+                  'hover:bg-accent hover:text-accent-foreground transition-colors duration-200':
+                    !isMenuItemActive(item),
                 }"
               >
                 <component
@@ -235,10 +240,12 @@ onUnmounted(() => {
                   v-if="item.icon"
                   :class="{
                     'text-primary-foreground': isMenuItemActive(item),
-                    'text-primary': !isMenuItemActive(item)
+                    'text-primary': !isMenuItemActive(item),
                   }"
                 />
-                <span :class="{ 'font-semibold': isMenuItemActive(item) }">{{ item.title }}</span>
+                <span :class="{ 'font-semibold': isMenuItemActive(item) }">{{
+                  item.title
+                }}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -255,9 +262,11 @@ onUnmounted(() => {
               'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-800':
                 authStore.getUser()?.user_type === 'admin',
               'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800':
-                authStore.getUser()?.user_type === 'user' && authStore.getUser()?.is_operator,
+                authStore.getUser()?.user_type === 'user' &&
+                authStore.getUser()?.is_operator,
               'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-800':
-                authStore.getUser()?.user_type === 'user' && !authStore.getUser()?.is_operator,
+                authStore.getUser()?.user_type === 'user' &&
+                !authStore.getUser()?.is_operator,
             }"
           >
             <div
@@ -265,20 +274,34 @@ onUnmounted(() => {
               :class="{
                 'bg-amber-500': authStore.getUser()?.user_type === 'superadmin',
                 'bg-blue-500': authStore.getUser()?.user_type === 'admin',
-                'bg-green-500': authStore.getUser()?.user_type === 'user' && authStore.getUser()?.is_operator,
-                'bg-gray-500': authStore.getUser()?.user_type === 'user' && !authStore.getUser()?.is_operator,
+                'bg-green-500':
+                  authStore.getUser()?.user_type === 'user' &&
+                  authStore.getUser()?.is_operator,
+                'bg-gray-500':
+                  authStore.getUser()?.user_type === 'user' &&
+                  !authStore.getUser()?.is_operator,
               }"
             ></div>
             <User class="h-4 w-4" />
             <span
               class="capitalize"
-              v-if="!(authStore.getUser()?.user_type === 'user' && authStore.getUser()?.is_operator)"
+              v-if="
+                !(
+                  authStore.getUser()?.user_type === 'user' &&
+                  authStore.getUser()?.is_operator
+                )
+              "
               >{{ authStore.getUser()?.user_type }}</span
             >
             <span class="capitalize" v-else>State Admin</span>
             <div
               class="ml-auto"
-              v-if="!(authStore.getUser()?.user_type === 'user' && authStore.getUser()?.is_operator)"
+              v-if="
+                !(
+                  authStore.getUser()?.user_type === 'user' &&
+                  authStore.getUser()?.is_operator
+                )
+              "
             >
               <div
                 class="text-xs px-1.5 py-0.5 rounded font-medium"
@@ -288,9 +311,11 @@ onUnmounted(() => {
                   'bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100':
                     authStore.getUser()?.user_type === 'admin',
                   'bg-green-200 dark:bg-green-800 text-green-900 dark:text-green-100':
-                    authStore.getUser()?.user_type === 'user' && authStore.getUser()?.is_operator,
+                    authStore.getUser()?.user_type === 'user' &&
+                    authStore.getUser()?.is_operator,
                   'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100':
-                    authStore.getUser()?.user_type === 'user' && !authStore.getUser()?.is_operator,
+                    authStore.getUser()?.user_type === 'user' &&
+                    !authStore.getUser()?.is_operator,
                 }"
               >
                 {{
@@ -298,7 +323,8 @@ onUnmounted(() => {
                     ? "SUPER"
                     : authStore.getUser()?.user_type === "admin"
                     ? "ADMIN"
-                    : authStore.getUser()?.user_type === "user" && authStore.getUser()?.is_operator
+                    : authStore.getUser()?.user_type === "user" &&
+                      authStore.getUser()?.is_operator
                     ? "OP"
                     : "USER"
                 }}
@@ -306,7 +332,10 @@ onUnmounted(() => {
             </div>
             <div v-else class="ml-auto">
               <img
-                :src="authStore.getOperatorStates()?.state_flag || authStore.getUser()?.operator_states?.state_flag"
+                :src="
+                  authStore.getOperatorStates()?.state_flag ||
+                  authStore.getUser()?.operator_states?.state_flag
+                "
                 alt=""
                 class="h-4 w-4 rounded-full"
               />
