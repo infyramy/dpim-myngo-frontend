@@ -36,6 +36,7 @@ import { useColorMode } from "@vueuse/core";
 import NavUser from "@/layouts/components/NavUser.vue";
 import { computed, ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import KeyboardShortcutsDialog from "@/components/KeyboardShortcutsDialog.vue";
 import {
   ChevronRight,
@@ -53,11 +54,40 @@ const navigationStore = useNavigationStore();
 const notificationStore = useNotificationStore();
 const authStore = useAuthStore();
 const router = useRouter();
+const route = useRoute();
 const showKeyboardShortcuts = ref(false);
 const { setTheme, theme } = useTheme();
 
 // Use navigation from the store
 const navigation = computed(() => navigationStore.navigation);
+
+// Check if a menu item is active based on current route
+const isMenuItemActive = (item: any): boolean => {
+  const currentPath = route.path;
+  
+  // Exact match
+  if (currentPath === item.url) {
+    return true;
+  }
+  
+  // Check if current path starts with the menu item URL (for nested routes)
+  if (currentPath.startsWith(item.url) && item.url !== '/') {
+    return true;
+  }
+  
+  // Check sub-items if they exist
+  if (item.items) {
+    return item.items.some((subItem: any) => isMenuItemActive(subItem));
+  }
+  
+  return false;
+};
+
+// Check if a menu item should be expanded (has active sub-items)
+const shouldExpandMenu = (item: any): boolean => {
+  if (!item.items) return false;
+  return item.items.some((subItem: any) => isMenuItemActive(subItem));
+};
 
 // Format time ago
 function formatTimeAgo(timestamp: string | number | Date) {
@@ -139,20 +169,33 @@ onUnmounted(() => {
             <Collapsible
               v-if="item.items"
               as-child
-              :default-open="item.isActive"
+              :default-open="shouldExpandMenu(item)"
               class="group/collapsible"
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger as-child>
-                  <SidebarMenuButton :tooltip="item.title">
+                  <SidebarMenuButton 
+                    :tooltip="item.title"
+                    :class="{
+                      'bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md transition-all duration-200': isMenuItemActive(item),
+                      'hover:bg-accent hover:text-accent-foreground transition-colors duration-200': !isMenuItemActive(item)
+                    }"
+                  >
                     <component
                       :is="item.icon"
                       v-if="item.icon"
-                      class="text-primary"
+                      :class="{
+                        'text-primary-foreground': isMenuItemActive(item),
+                        'text-primary': !isMenuItemActive(item)
+                      }"
                     />
-                    <span>{{ item.title }}</span>
+                    <span :class="{ 'font-semibold': isMenuItemActive(item) }">{{ item.title }}</span>
                     <ChevronRight
                       class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
+                      :class="{
+                        'text-primary-foreground': isMenuItemActive(item),
+                        'text-muted-foreground': !isMenuItemActive(item)
+                      }"
                     />
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
@@ -162,10 +205,14 @@ onUnmounted(() => {
                       v-for="subItem in item.items"
                       :key="subItem.title"
                     >
-                      <SidebarMenuSubButton as-child>
-                        <a :href="subItem.url">
-                          <span>{{ subItem.title }}</span>
-                        </a>
+                      <SidebarMenuSubButton 
+                        @click="router.push(subItem.url)"
+                        :class="{
+                          'bg-primary/10 text-primary font-medium border-l-2 border-primary hover:bg-primary/20 hover:border-l-4 transition-all duration-200': isMenuItemActive(subItem),
+                          'hover:bg-accent hover:text-accent-foreground transition-colors duration-200': !isMenuItemActive(subItem)
+                        }"
+                      >
+                        <span>{{ subItem.title }}</span>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   </SidebarMenuSub>
@@ -176,13 +223,20 @@ onUnmounted(() => {
               <SidebarMenuButton
                 :tooltip="item.title"
                 @click="router.push(item.url)"
+                :class="{
+                  'bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-lg shadow-sm transition-all duration-200': isMenuItemActive(item),
+                  'hover:bg-accent hover:text-accent-foreground transition-colors duration-200': !isMenuItemActive(item)
+                }"
               >
                 <component
                   :is="item.icon"
                   v-if="item.icon"
-                  class="text-primary"
+                  :class="{
+                    'text-primary-foreground': isMenuItemActive(item),
+                    'text-primary': !isMenuItemActive(item)
+                  }"
                 />
-                <span>{{ item.title }}</span>
+                <span :class="{ 'font-semibold': isMenuItemActive(item) }">{{ item.title }}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

@@ -1,145 +1,259 @@
 <template>
   <div class="space-y-6">
     <!-- Header Section -->
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 sm:px-0">
       <div>
-        <h1 class="text-3xl font-bold">My Products</h1>
-        <p class="text-muted-foreground mt-1">
+        <h1 class="text-2xl sm:text-3xl font-bold">My Products</h1>
+        <p class="text-muted-foreground mt-1 text-sm sm:text-base">
           Manage your products and services
         </p>
       </div>
       <Button
         @click="showAddProductDialog = true"
         :disabled="isSubmitting"
-        class="flex items-center gap-2"
+        class="flex items-center gap-2 w-full sm:w-auto"
       >
         <PlusIcon class="h-4 w-4" />
-        Product Form
+        New Product
       </Button>
     </div>
 
     <!-- Search and Filters -->
-    <Card>
-      <CardContent class="p-6">
-        <div class="space-y-4">
-          <!-- Search Input -->
-          <div class="relative">
-            <SearchIcon
-              class="absolute left-3 top-3 h-4 w-4 text-muted-foreground"
-            />
-            <Input
-              v-model="searchQuery"
-              placeholder="Search your products, services, or tags..."
-              class="pl-9 w-full"
-              @input="performSearch"
-            />
-          </div>
+    <div class="px-4 sm:px-0">
+      <Card>
+        <CardContent class="p-4 sm:p-6">
+          <div class="space-y-4">
+            <!-- Search Input -->
+            <div class="relative">
+              <SearchIcon
+                class="absolute left-3 top-3 h-4 w-4 text-muted-foreground"
+              />
+              <Input
+                v-model="searchQuery"
+                placeholder="Search your products, services, or tags..."
+                class="pl-9 w-full"
+                @input="performSearch"
+              />
+            </div>
 
-          <!-- Filter Controls -->
-          <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div>
-              <Label for="productCategory">Category</Label>
-              <Select
-                v-model="filters.category"
-                @update:modelValue="performSearch"
-              >
-                <SelectTrigger id="productCategory" class="w-full mt-1">
-                  <SelectValue placeholder="All categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All categories</SelectItem>
-                  <SelectItem
-                    v-for="category in categories"
-                    :key="category.value"
-                    :value="category.value"
+            <!-- Mobile Filter Toggle -->
+            <div class="sm:hidden">
+              <Collapsible v-model:open="showMobileFilters">
+                <CollapsibleTrigger asChild>
+                  <Button
+                    variant="outline"
+                    class="w-full justify-between text-sm"
                   >
-                    {{ category.label }}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                    <div class="flex items-center gap-2">
+                      <SlidersHorizontalIcon class="h-4 w-4" />
+                      Filters
+                      <Badge v-if="activeFiltersCount > 0" variant="secondary" class="text-xs">
+                        {{ activeFiltersCount }}
+                      </Badge>
+                    </div>
+                    <ChevronDownIcon
+                      class="h-4 w-4 transition-transform duration-200"
+                      :class="{ 'rotate-180': showMobileFilters }"
+                    />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent class="mt-3">
+                  <!-- Mobile Filter Controls -->
+                  <div class="grid grid-cols-1 gap-4">
+                    <div>
+                      <Label for="productCategoryMobile" class="text-sm">Category</Label>
+                      <Select
+                        v-model="filters.category"
+                        @update:modelValue="performSearch"
+                      >
+                        <SelectTrigger id="productCategoryMobile" class="w-full mt-1 h-10">
+                          <SelectValue placeholder="All categories" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All categories</SelectItem>
+                          <SelectItem
+                            v-for="category in categories"
+                            :key="category.value"
+                            :value="category.value"
+                          >
+                            {{ category.label }}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label for="statusFilterMobile" class="text-sm">Status</Label>
+                      <Select
+                        v-model="filters.status"
+                        @update:modelValue="performSearch"
+                      >
+                        <SelectTrigger id="statusFilterMobile" class="w-full mt-1 h-10">
+                          <SelectValue placeholder="All status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All status</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label for="featuredFilterMobile" class="text-sm">Featured</Label>
+                      <Select
+                        v-model="filters.featured"
+                        @update:modelValue="performSearch"
+                      >
+                        <SelectTrigger id="featuredFilterMobile" class="w-full mt-1 h-10">
+                          <SelectValue placeholder="All products" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All products</SelectItem>
+                          <SelectItem value="true">Featured only</SelectItem>
+                          <SelectItem value="false">Non-featured</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label for="tagFilterMobile" class="text-sm">Tag</Label>
+                      <Select v-model="filters.tag" @update:modelValue="performSearch">
+                        <SelectTrigger id="tagFilterMobile" class="w-full mt-1 h-10">
+                          <SelectValue placeholder="All tags" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All tags</SelectItem>
+                          <SelectItem
+                            v-for="tag in allTags"
+                            :key="tag.id"
+                            :value="tag.name"
+                          >
+                            {{ tag.name }}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      class="w-full flex items-center gap-2 h-10"
+                      @click="resetFilters"
+                    >
+                      <RefreshCcwIcon class="h-4 w-4" />
+                      Reset Filters
+                    </Button>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
 
-            <div>
-              <Label for="statusFilter">Status</Label>
-              <Select
-                v-model="filters.status"
-                @update:modelValue="performSearch"
-              >
-                <SelectTrigger id="statusFilter" class="w-full mt-1">
-                  <SelectValue placeholder="All status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <!-- Desktop Filter Controls -->
+            <div class="hidden sm:grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div>
+                <Label for="productCategory" class="text-sm">Category</Label>
+                <Select
+                  v-model="filters.category"
+                  @update:modelValue="performSearch"
+                >
+                  <SelectTrigger id="productCategory" class="w-full mt-1 h-10">
+                    <SelectValue placeholder="All categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All categories</SelectItem>
+                    <SelectItem
+                      v-for="category in categories"
+                      :key="category.value"
+                      :value="category.value"
+                    >
+                      {{ category.label }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div>
-              <Label for="featuredFilter">Featured</Label>
-              <Select
-                v-model="filters.featured"
-                @update:modelValue="performSearch"
-              >
-                <SelectTrigger id="featuredFilter" class="w-full mt-1">
-                  <SelectValue placeholder="All products" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All products</SelectItem>
-                  <SelectItem value="true">Featured only</SelectItem>
-                  <SelectItem value="false">Non-featured</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div>
+                <Label for="statusFilter" class="text-sm">Status</Label>
+                <Select
+                  v-model="filters.status"
+                  @update:modelValue="performSearch"
+                >
+                  <SelectTrigger id="statusFilter" class="w-full mt-1 h-10">
+                    <SelectValue placeholder="All status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div>
-              <Label for="tagFilter">Tag</Label>
-              <Select v-model="filters.tag" @update:modelValue="performSearch">
-                <SelectTrigger id="tagFilter" class="w-full mt-1">
-                  <SelectValue placeholder="All tags" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All tags</SelectItem>
-                  <SelectItem
-                    v-for="tag in allTags"
-                    :key="tag.id"
-                    :value="tag.name"
-                  >
-                    {{ tag.name }}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div>
+                <Label for="featuredFilter" class="text-sm">Featured</Label>
+                <Select
+                  v-model="filters.featured"
+                  @update:modelValue="performSearch"
+                >
+                  <SelectTrigger id="featuredFilter" class="w-full mt-1 h-10">
+                    <SelectValue placeholder="All products" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All products</SelectItem>
+                    <SelectItem value="true">Featured only</SelectItem>
+                    <SelectItem value="false">Non-featured</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div class="flex items-end">
-              <Button
-                variant="outline"
-                class="w-full flex items-center gap-2"
-                @click="resetFilters"
-              >
-                <RefreshCcwIcon class="h-4 w-4" />
-                Reset
-              </Button>
+              <div>
+                <Label for="tagFilter" class="text-sm">Tag</Label>
+                <Select v-model="filters.tag" @update:modelValue="performSearch">
+                  <SelectTrigger id="tagFilter" class="w-full mt-1 h-10">
+                    <SelectValue placeholder="All tags" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All tags</SelectItem>
+                    <SelectItem
+                      v-for="tag in allTags"
+                      :key="tag.id"
+                      :value="tag.name"
+                    >
+                      {{ tag.name }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div class="flex items-end sm:col-span-2 lg:col-span-1">
+                <Button
+                  variant="outline"
+                  class="w-full flex items-center gap-2 h-10"
+                  @click="resetFilters"
+                >
+                  <RefreshCcwIcon class="h-4 w-4" />
+                  Reset
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
 
     <!-- Products Section -->
-    <div>
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-semibold">
+    <div class="px-4 sm:px-0">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+        <h2 class="text-lg sm:text-xl font-semibold">
           Your Products
-          <span class="text-base font-normal text-muted-foreground ml-2">
+          <span class="text-sm sm:text-base font-normal text-muted-foreground ml-2">
             ({{ totalResults }} products)
           </span>
         </h2>
         <div class="flex items-center gap-2">
-          <p class="text-sm text-muted-foreground">Sort by:</p>
+          <p class="text-sm text-muted-foreground whitespace-nowrap">Sort by:</p>
           <Select v-model="sortBy" @update:modelValue="performSearch">
-            <SelectTrigger class="w-[180px] h-8">
+            <SelectTrigger class="w-[140px] sm:w-[180px] h-9">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -156,13 +270,13 @@
       <!-- Loading State -->
       <div
         v-if="isLoading"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6"
       >
         <Card v-for="i in 6" :key="i" class="animate-pulse">
-          <CardContent class="p-4">
+          <CardContent class="p-3 sm:p-4">
             <div class="space-y-3">
-              <div class="h-32 bg-muted rounded"></div>
-              <div class="h-4 bg-muted rounded w-3/4"></div>
+              <div class="h-28 sm:h-32 bg-muted rounded"></div>
+              <div class="h-3 sm:h-4 bg-muted rounded w-3/4"></div>
               <div class="h-3 bg-muted rounded w-1/2"></div>
               <div class="h-3 bg-muted rounded"></div>
             </div>
@@ -171,15 +285,15 @@
       </div>
 
       <!-- Error State -->
-      <div v-else-if="error" class="text-center py-12">
+      <div v-else-if="error" class="text-center py-8 sm:py-12 px-4">
         <div
-          class="mx-auto w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-4"
+          class="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-red-100 rounded-full flex items-center justify-center mb-4"
         >
-          <AlertCircleIcon class="h-8 w-8 text-red-600" />
+          <AlertCircleIcon class="h-6 w-6 sm:h-8 sm:w-8 text-red-600" />
         </div>
-        <h3 class="text-lg font-semibold mb-2">Error Loading Products</h3>
-        <p class="text-muted-foreground mb-4">{{ error }}</p>
-        <Button @click="fetchProducts" class="flex items-center gap-2">
+        <h3 class="text-base sm:text-lg font-semibold mb-2">Error Loading Products</h3>
+        <p class="text-sm sm:text-base text-muted-foreground mb-4 max-w-md mx-auto">{{ error }}</p>
+        <Button @click="fetchProducts" class="flex items-center gap-2 w-full sm:w-auto">
           <RefreshCcwIcon class="h-4 w-4" />
           Try Again
         </Button>
@@ -188,7 +302,7 @@
       <!-- Products Grid -->
       <div
         v-else-if="paginatedResults.length > 0"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6"
       >
         <Card
           v-for="product in paginatedResults"
@@ -224,9 +338,9 @@
             </div>
 
             <!-- Product Info -->
-            <div class="p-4 space-y-3">
+            <div class="p-3 sm:p-4 space-y-3">
               <div>
-                <h3 class="font-semibold text-lg line-clamp-1 mb-1">
+                <h3 class="font-semibold text-base sm:text-lg line-clamp-1 mb-1">
                   {{ product.name }}
                 </h3>
                 <div class="flex flex-wrap gap-1 mb-2">
@@ -243,7 +357,7 @@
                 </div>
               </div>
 
-              <p class="text-sm text-muted-foreground line-clamp-2">
+              <p class="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                 {{ product.description }}
               </p>
 
@@ -271,38 +385,39 @@
               <div
                 class="flex items-center justify-between text-xs text-muted-foreground"
               >
-                <span>Created: {{ formatDate(product.createdAt) }}</span>
+                <span class="hidden sm:inline">Created: {{ formatDate(product.createdAt) }}</span>
                 <div class="flex items-center gap-1">
                   <CalendarIcon class="h-3 w-3" />
-                  {{ formatDate(product.createdAt) }}
+                  <span class="sm:hidden">{{ formatDate(product.createdAt) }}</span>
+                  <span class="hidden sm:inline">{{ formatDate(product.createdAt) }}</span>
                 </div>
               </div>
 
               <div class="flex justify-between pt-2 gap-2">
-                <div class="flex gap-1">
+                <div class="flex gap-1 flex-1">
                   <Button
                     variant="outline"
                     size="sm"
-                    class="flex items-center gap-1 flex-1"
+                    class="flex items-center gap-1 flex-1 text-xs sm:text-sm h-8 sm:h-9"
                     @click="viewProductDetail(product)"
                   >
                     <EyeIcon class="h-3 w-3" />
-                    View
+                    <span class="hidden sm:inline">View</span>
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    class="flex items-center gap-1 flex-1"
+                    class="flex items-center gap-1 flex-1 text-xs sm:text-sm h-8 sm:h-9"
                     @click="editProduct(product)"
                   >
                     <PencilIcon class="h-3 w-3" />
-                    Edit
+                    <span class="hidden sm:inline">Edit</span>
                   </Button>
                 </div>
                 <Button
                   variant="destructive"
                   size="sm"
-                  class="flex items-center gap-1"
+                  class="flex items-center gap-1 h-8 sm:h-9 px-2 sm:px-3"
                   @click="deleteProduct(product.id)"
                   :disabled="isSubmitting"
                 >
@@ -315,38 +430,38 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else class="text-center py-12">
+      <div v-else class="text-center py-8 sm:py-12 px-4">
         <div
-          class="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4"
+          class="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-muted rounded-full flex items-center justify-center mb-4"
         >
-          <PackageIcon class="h-8 w-8 text-muted-foreground" />
+          <PackageIcon class="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
         </div>
-        <h3 class="text-lg font-semibold mb-2">
+        <h3 class="text-base sm:text-lg font-semibold mb-2">
           {{ hasActiveFilters ? "No products found" : "No products yet" }}
         </h3>
-        <p class="text-muted-foreground mb-4">
+        <p class="text-sm sm:text-base text-muted-foreground mb-4 max-w-md mx-auto">
           {{
             hasActiveFilters
               ? "Try adjusting your search criteria or reset filters"
               : 'You haven\'t added any products yet. Click "Add Product" to get started.'
           }}
         </p>
-        <div class="flex justify-center gap-2">
+        <div class="flex flex-col sm:flex-row justify-center gap-2">
           <Button
             v-if="hasActiveFilters"
             variant="outline"
             @click="resetFilters"
-            class="flex items-center gap-2"
+            class="flex items-center gap-2 w-full sm:w-auto"
           >
             <RefreshCcwIcon class="h-4 w-4" />
             Reset Filters
           </Button>
           <Button
             @click="showAddProductDialog = true"
-            class="flex items-center gap-2"
+            class="flex items-center gap-2 w-full sm:w-auto"
           >
             <PlusIcon class="h-4 w-4" />
-            Product Form
+            New Product
           </Button>
         </div>
       </div>
@@ -354,20 +469,21 @@
       <!-- Pagination -->
       <div
         v-if="paginatedResults.length > 0 && totalPages > 1"
-        class="flex items-center justify-between"
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
       >
-        <p class="text-sm text-muted-foreground">
+        <p class="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
           Showing {{ startIndex + 1 }}-{{ Math.min(endIndex, totalResults) }} of
           {{ totalResults }} products
         </p>
-        <div class="flex items-center gap-1">
+        <div class="flex items-center justify-center gap-1">
           <Button
             variant="outline"
             size="icon"
+            class="h-8 w-8 sm:h-9 sm:w-9"
             :disabled="currentPage === 1"
             @click="goToPage(currentPage - 1)"
           >
-            <ChevronLeftIcon class="h-4 w-4" />
+            <ChevronLeftIcon class="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
 
           <Button
@@ -375,7 +491,7 @@
             :key="page"
             :variant="page === currentPage ? 'default' : 'outline'"
             size="sm"
-            class="h-8 w-8"
+            class="h-8 w-8 sm:h-9 sm:w-9 text-xs sm:text-sm"
             @click="goToPage(page)"
           >
             {{ page }}
@@ -384,10 +500,11 @@
           <Button
             variant="outline"
             size="icon"
+            class="h-8 w-8 sm:h-9 sm:w-9"
             :disabled="currentPage === totalPages"
             @click="goToPage(currentPage + 1)"
           >
-            <ChevronRightIcon class="h-4 w-4" />
+            <ChevronRightIcon class="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         </div>
       </div>
@@ -815,7 +932,14 @@ import {
   CalendarIcon,
   AlertCircleIcon,
   TagIcon,
+  SlidersHorizontalIcon,
+  ChevronDownIcon,
 } from "lucide-vue-next";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 
 import { apiFetching } from "@/services/api-fetching";
 import { toast } from "vue-sonner";
@@ -865,6 +989,7 @@ const searchQuery = ref("");
 const isLoading = ref(false);
 const isSubmitting = ref(false);
 const error = ref<string | null>(null);
+const showMobileFilters = ref(false);
 
 // Pagination
 const currentPage = ref(1);
@@ -1143,6 +1268,15 @@ const hasActiveFilters = computed(() => {
     filters.value.featured !== "all" ||
     filters.value.tag !== "all"
   );
+});
+
+const activeFiltersCount = computed(() => {
+  let count = 0;
+  if (filters.value.category !== "all") count++;
+  if (filters.value.status !== "all") count++;
+  if (filters.value.featured !== "all") count++;
+  if (filters.value.tag !== "all") count++;
+  return count;
 });
 
 const isFormValid = computed(() => {

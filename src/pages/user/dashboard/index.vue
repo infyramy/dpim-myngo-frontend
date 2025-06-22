@@ -40,22 +40,29 @@
     <!-- Action Required -->
     <Card v-if="pendingActions.length > 0">
       <CardHeader>
-        <CardTitle class="text-lg">Action Required</CardTitle>
+        <CardTitle class="text-lg flex items-center gap-2">
+          Action Required
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div class="space-y-3">
           <div
             v-for="action in pendingActions"
             :key="action.id"
-            class="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg"
+            class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between p-4 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
           >
-            <div>
-              <div class="font-medium">{{ action.title }}</div>
-              <div class="text-sm text-muted-foreground">
+            <div class="flex-1 mb-3 sm:mb-0">
+              <div class="font-semibold text-amber-900 mb-1">{{ action.title }}</div>
+              <div class="text-sm text-amber-700">
                 {{ action.description }}
               </div>
             </div>
-            <Button size="sm" @click="handleAction(action.action)">
+            <Button 
+              size="sm" 
+              variant="default"
+              class="bg-amber-600 hover:bg-amber-700 text-white w-full sm:w-auto sm:ml-4 flex-shrink-0"
+              @click="handleAction(action.action)"
+            >
               {{ action.buttonText }}
             </Button>
           </div>

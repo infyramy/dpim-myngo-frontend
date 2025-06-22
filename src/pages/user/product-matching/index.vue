@@ -1,252 +1,285 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-4 sm:space-y-6">
     <!-- Header Section -->
-    <div>
-      <h1 class="text-3xl font-bold">Product Matching</h1>
-      <p class="text-muted-foreground mt-1">
+    <div class="px-4 sm:px-0">
+      <h1 class="text-2xl sm:text-3xl font-bold">Product Matching</h1>
+      <p class="text-muted-foreground mt-1 text-sm sm:text-base">
         Find products and services from DPIM members nationwide
       </p>
     </div>
 
     <!-- Modern Hero Search Section -->
-    <div class="relative">
+    <div class="relative px-4 sm:px-0">
       <!-- Main Search Bar -->
-      <Card
+      <!-- <Card
         class="border-none shadow-lg bg-gradient-to-br from-background to-muted/50"
       >
-        <CardContent class="p-8">
-          <div class="space-y-6">
-            <!-- Primary Search Input -->
-            <div class="relative group">
-              <div
-                class="absolute -inset-0.5 bg-gradient-to-r from-primary to-primary/60 rounded-lg blur opacity-25 group-hover:opacity-40 transition duration-300"
-              ></div>
-              <div
-                class="relative bg-card border border-border rounded-lg p-1 shadow-sm"
-              >
-                <div class="flex items-center">
-                  <div class="flex-1 relative">
-                    <SearchIcon
-                      class="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground"
-                    />
-                    <Input
-                      ref="searchInputRef"
-                      v-model="searchQuery"
-                      placeholder="Search for products, services, or businesses..."
-                      class="pl-12 pr-4 py-4 text-lg border-0 shadow-none focus-visible:ring-0 bg-transparent h-auto"
-                      @input="handleSearchInput"
-                      @focus="showSuggestions = true"
-                    />
-                  </div>
-                  <Button
-                    size="lg"
-                    class="mx-2"
-                    @click="performSearch"
-                    :disabled="isLoading"
-                  >
-                    <SearchIcon class="h-4 w-4 mr-2" />
-                    {{ isLoading ? "Searching..." : "Search" }}
-                  </Button>
-                </div>
+        <CardContent class=""> -->
 
-                <!-- Search Suggestions Dropdown -->
-                <div
-                  v-if="
-                    showSuggestions &&
-                    (filteredSuggestions.length > 0 || searchQuery.trim())
-                  "
-                  class="absolute top-full left-0 right-0 mt-2 bg-popover border border-border rounded-md shadow-md z-50 max-h-64 overflow-y-auto"
-                >
-                  <div class="p-2">
-                    <!-- Search History -->
-                    <div
-                      v-if="searchHistory.length > 0 && !searchQuery.trim()"
-                      class="mb-2"
-                    >
-                      <p
-                        class="text-xs text-muted-foreground px-3 py-2 font-medium"
-                      >
-                        Recent Searches
-                      </p>
-                      <div
-                        v-for="(history, index) in searchHistory.slice(0, 3)"
-                        :key="index"
-                        class="flex items-center px-3 py-2 hover:bg-accent hover:text-accent-foreground rounded-sm cursor-pointer"
-                        @click="selectSuggestion(history)"
-                      >
-                        <ClockIcon class="h-4 w-4 text-muted-foreground mr-3" />
-                        <span class="text-sm">{{ history }}</span>
-                      </div>
-                    </div>
-
-                    <!-- Dynamic Suggestions -->
-                    <div v-if="filteredSuggestions.length > 0">
-                      <p
-                        class="text-xs text-muted-foreground px-3 py-2 font-medium"
-                      >
-                        Suggestions
-                      </p>
-                      <div
-                        v-for="suggestion in filteredSuggestions.slice(0, 5)"
-                        :key="suggestion.text"
-                        class="flex items-center px-3 py-2 hover:bg-accent hover:text-accent-foreground rounded-sm cursor-pointer"
-                        @click="selectSuggestion(suggestion.text)"
-                      >
-                        <component
-                          :is="suggestion.icon"
-                          class="h-4 w-4 text-muted-foreground mr-3"
-                        />
-                        <span class="text-sm">{{ suggestion.text }}</span>
-                        <Badge variant="outline" class="ml-auto text-xs">{{
-                          suggestion.category
-                        }}</Badge>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+      <div class="space-y-4 sm:space-y-6">
+        <!-- Primary Search Input -->
+        <div ref="searchContainerRef" class="relative group">
+          <div
+            class="absolute -inset-0.5 bg-gradient-to-r from-primary to-primary/60 rounded-lg blur opacity-25 group-hover:opacity-40 transition duration-300"
+          ></div>
+          <div
+            class="relative bg-card border border-border rounded-lg p-1 shadow-sm"
+          >
+            <div class="flex items-center gap-2">
+              <div class="flex-1 relative">
+                <SearchIcon
+                  class="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-muted-foreground"
+                />
+                <Input
+                  ref="searchInputRef"
+                  v-model="searchQuery"
+                  placeholder="Search products, services..."
+                  class="pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 text-base sm:text-lg border-0 shadow-none focus-visible:ring-0 bg-transparent h-auto"
+                  @focus="showSuggestions = true"
+                  @keyup.enter="performSearch"
+                  @keyup.escape="showSuggestions = false"
+                />
               </div>
-            </div>
-
-            <!-- Quick Filter Tags -->
-            <div class="flex flex-wrap gap-3 justify-center">
               <Button
-                v-for="quickFilter in quickFilters"
-                :key="quickFilter.value"
-                variant="outline"
-                size="sm"
-                class="rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
-                @click="applyQuickFilter(quickFilter)"
+                size="default"
+                class="px-4 py-3 h-auto whitespace-nowrap"
+                @click="performSearch"
+                :disabled="isLoading"
               >
-                <TagIcon class="h-4 w-4 mr-2" />
-                {{ quickFilter.label }}
+                <span class="hidden sm:inline">{{ isLoading ? "Searching..." : "Search" }}</span>
+                <span class="sm:hidden">{{ isLoading ? "..." : "Search" }}</span>
               </Button>
             </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      <!-- Active Filters Tags -->
-      <div v-if="activeFilters.length > 0" class="mt-4">
-        <div class="flex items-center gap-2 flex-wrap">
-          <p class="text-sm font-medium text-muted-foreground">
-            Active filters:
-          </p>
-          <TransitionGroup
-            name="filter-tag"
-            tag="div"
-            class="flex gap-2 flex-wrap"
-          >
-            <Badge
-              v-for="filter in activeFilters"
-              :key="filter.key"
-              variant="secondary"
-              class="inline-flex items-center gap-2 px-3 py-1 cursor-pointer hover:bg-secondary/80 transition-colors group"
+            <!-- Search Suggestions Dropdown -->
+            <div
+              v-if="showSuggestions"
+              class="absolute top-full left-0 right-0 mt-2 bg-popover border border-border rounded-md shadow-md z-50 max-h-64 overflow-y-auto"
             >
-              <component :is="filter.icon" class="h-3 w-3" />
-              <span>{{ filter.label }}: {{ filter.value }}</span>
-              <button
-                @click="removeFilter(filter.key)"
-                class="ml-1 hover:bg-accent rounded-full p-0.5 transition-colors"
-              >
-                <XIcon class="h-3 w-3" />
-              </button>
-            </Badge>
-          </TransitionGroup>
-          <Button
-            variant="ghost"
-            size="sm"
-            class="text-muted-foreground hover:text-destructive"
-            @click="clearAllFilters"
-          >
-            <TrashIcon class="h-3 w-3 mr-1" />
-            Clear all
-          </Button>
+              <div class="p-2">
+                <!-- Search History -->
+                <div
+                  v-if="searchHistory.length > 0 && !searchQuery.trim()"
+                  class="mb-2"
+                >
+                  <p
+                    class="text-xs text-muted-foreground px-3 py-2 font-medium"
+                  >
+                    Recent Searches
+                  </p>
+                  <div
+                    v-for="(history, index) in searchHistory.slice(0, 3)"
+                    :key="index"
+                    class="flex items-center px-3 py-2 hover:bg-accent hover:text-accent-foreground rounded-sm cursor-pointer"
+                    @click="selectSuggestion(history)"
+                  >
+                    <ClockIcon class="h-4 w-4 text-muted-foreground mr-3" />
+                    <span class="text-sm">{{ history }}</span>
+                  </div>
+                </div>
+
+                <!-- Dynamic Suggestions -->
+                <div v-if="filteredSuggestions.length > 0">
+                  <p
+                    class="text-xs text-muted-foreground px-3 py-2 font-medium"
+                  >
+                    Suggestions
+                  </p>
+                  <div
+                    v-for="suggestion in filteredSuggestions.slice(0, 5)"
+                    :key="suggestion.text"
+                    class="flex items-center px-3 py-2 hover:bg-accent hover:text-accent-foreground rounded-sm cursor-pointer"
+                    @click="selectSuggestion(suggestion.text)"
+                  >
+                    <component
+                      :is="suggestion.icon"
+                      class="h-4 w-4 text-muted-foreground mr-3"
+                    />
+                    <span class="text-sm">{{ suggestion.text }}</span>
+                    <Badge variant="outline" class="ml-auto text-xs">{{
+                      suggestion.category
+                    }}</Badge>
+                  </div>
+                </div>
+
+                <!-- Not Found State -->
+                <div
+                  v-if="
+                    searchQuery.trim() &&
+                    filteredSuggestions.length === 0 &&
+                    (searchHistory.length === 0 || searchQuery.trim())
+                  "
+                  class="px-3 py-6 text-center"
+                >
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="w-8 h-8 bg-muted rounded-full flex items-center justify-center"
+                    >
+                      <SearchIcon class="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <p class="text-sm text-muted-foreground">
+                      No suggestions found
+                    </p>
+                    <p class="text-xs text-muted-foreground/80">
+                      Try a different search term
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Empty State (No history, no query) -->
+                <div
+                  v-if="!searchQuery.trim() && searchHistory.length === 0"
+                  class="px-3 py-6 text-center"
+                >
+                  <div class="flex flex-col items-center gap-2">
+                    <div
+                      class="w-8 h-8 bg-muted rounded-full flex items-center justify-center"
+                    >
+                      <ClockIcon class="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <p class="text-sm text-muted-foreground">
+                      Start typing to see suggestions
+                    </p>
+                    <p class="text-xs text-muted-foreground/80">
+                      Your recent searches will appear here
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+      <!-- </CardContent>
+      </Card> -->
 
-      <!-- Advanced Filters Collapsible -->
-      <Collapsible v-model:open="showAdvancedFilters">
-        <CollapsibleTrigger asChild>
-          <Button
-            variant="ghost"
-            class="w-full mt-4 justify-center text-muted-foreground hover:text-foreground"
-          >
-            <SlidersHorizontalIcon class="h-4 w-4 mr-2" />
-            Advanced Filters
-            <ChevronDownIcon
-              class="h-4 w-4 ml-2 transition-transform duration-200"
-              :class="{ 'rotate-180': showAdvancedFilters }"
-            />
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent class="mt-4">
-          <Card>
-            <CardContent class="p-6">
-              <div class="grid grid-cols-1 gap-6">
-                <!-- Category Filter -->
-                <div class="space-y-3">
-                  <Label class="text-sm font-medium flex items-center gap-2">
-                    <TagIcon class="h-4 w-4" />
-                    Product Category
-                  </Label>
-                  <Select
-                    v-model="filters.category"
-                    @update:modelValue="performSearch"
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="All categories" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All categories</SelectItem>
-                      <SelectItem
-                        v-for="category in categories"
-                        :key="category.value"
-                        :value="category.value"
-                      >
-                        {{ category.label }}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+      <!-- Advanced Filters Section -->
+      <div class="mt-4 sm:mt-6">
+        <Collapsible v-model:open="showAdvancedFilters">
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              class="w-full justify-center text-muted-foreground hover:text-foreground py-3"
+            >
+              <SlidersHorizontalIcon class="h-4 w-4 mr-2" />
+              Advanced Filters
+              <ChevronDownIcon
+                class="h-4 w-4 ml-2 transition-transform duration-200"
+                :class="{ 'rotate-180': showAdvancedFilters }"
+              />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent class="mt-4">
+            <Card>
+              <CardContent class="p-4 sm:p-6">
+                <div class="grid grid-cols-1 gap-4 sm:gap-6">
+                  <!-- Category Filter -->
+                  <div class="space-y-3">
+                    <Label class="text-sm font-medium flex items-center gap-2">
+                      <TagIcon class="h-4 w-4" />
+                      Product Category
+                    </Label>
+                    <Select v-model="filters.category">
+                      <SelectTrigger class="h-11">
+                        <SelectValue placeholder="All categories" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All categories</SelectItem>
+                        <SelectItem
+                          v-for="category in categories"
+                          :key="category.value"
+                          :value="category.value"
+                        >
+                          {{ category.label }}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-              </div>
 
-              <!-- Filter Actions -->
-              <div class="flex justify-between items-center mt-6 pt-4 border-t">
-                <div class="text-sm text-muted-foreground">
-                  {{ activeFilters.length }} filter{{
-                    activeFilters.length !== 1 ? "s" : ""
-                  }}
-                  applied
+                <!-- Filter Actions -->
+                <div
+                  class="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-6 pt-4 border-t gap-3 sm:gap-2"
+                >
+                  <div class="text-sm text-muted-foreground text-center sm:text-left">
+                    {{ activeFilters.length }} filter{{
+                      activeFilters.length !== 1 ? "s" : ""
+                    }}
+                    applied
+                  </div>
+                  <div class="flex flex-col sm:flex-row gap-2">
+                    <Button variant="outline" @click="resetFilters" class="w-full sm:w-auto">
+                      <RefreshCcwIcon class="h-4 w-4 mr-2" />
+                      Reset All
+                    </Button>
+                    <Button @click="showAdvancedFilters = false" class="w-full sm:w-auto">
+                      Apply Filters
+                    </Button>
+                  </div>
                 </div>
-                <div class="flex gap-2">
-                  <Button variant="outline" @click="resetFilters">
-                    <RefreshCcwIcon class="h-4 w-4 mr-2" />
-                    Reset All
-                  </Button>
-                  <Button @click="showAdvancedFilters = false">
-                    Apply Filters
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </CollapsibleContent>
-      </Collapsible>
+              </CardContent>
+            </Card>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+
+      <!-- Active Filters Tags -->
+      <div v-if="activeFilters.length > 0" class="mt-4 px-4 sm:px-0">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2">
+          <p class="text-sm font-medium text-muted-foreground whitespace-nowrap">
+            Active filters:
+          </p>
+          <div class="flex items-center gap-2 flex-wrap">
+            <TransitionGroup
+              name="filter-tag"
+              tag="div"
+              class="flex gap-2 flex-wrap"
+            >
+              <Badge
+                v-for="filter in activeFilters"
+                :key="filter.key"
+                variant="secondary"
+                class="inline-flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-secondary/80 transition-colors group text-xs"
+              >
+                <component :is="filter.icon" class="h-3 w-3" />
+                <span>{{ filter.label }}: {{ filter.value }}</span>
+                <button
+                  @click="removeFilter(filter.key)"
+                  class="ml-1 hover:bg-accent rounded-full p-0.5 transition-colors"
+                >
+                  <XIcon class="h-3 w-3" />
+                </button>
+              </Badge>
+            </TransitionGroup>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="text-muted-foreground hover:text-destructive text-xs h-8"
+              @click="clearAllFilters"
+            >
+              <TrashIcon class="h-3 w-3 mr-1" />
+              Clear all
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Search Results -->
-    <div>
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-semibold">
-          Search Results
-          <span class="text-base font-normal text-muted-foreground ml-2">
+    <div v-if="hasSearched" class="px-4 sm:px-0">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+        <div>
+          <h2 class="text-lg sm:text-xl font-semibold">
+            Search Results
+          </h2>
+          <span class="text-sm sm:text-base font-normal text-muted-foreground">
             ({{ totalResults }} results found)
           </span>
-        </h2>
+        </div>
         <div class="flex items-center gap-2">
-          <p class="text-sm text-muted-foreground">Sort by:</p>
+          <p class="text-sm text-muted-foreground whitespace-nowrap">Sort by:</p>
           <Select v-model="sortBy" @update:modelValue="performSearch">
-            <SelectTrigger class="w-[180px] h-8">
+            <SelectTrigger class="w-[140px] sm:w-[180px] h-9">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -262,12 +295,12 @@
       <!-- Loading State -->
       <div
         v-if="isLoading"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6"
       >
         <Card v-for="i in 6" :key="i" class="animate-pulse">
-          <CardContent class="p-4">
+          <CardContent class="p-3 sm:p-4">
             <div class="space-y-3">
-              <div class="h-32 bg-muted rounded"></div>
+              <div class="h-28 sm:h-32 bg-muted rounded"></div>
               <div class="h-4 bg-muted rounded w-3/4"></div>
               <div class="h-3 bg-muted rounded w-1/2"></div>
               <div class="h-3 bg-muted rounded"></div>
@@ -279,7 +312,7 @@
       <!-- Products Grid -->
       <div
         v-else-if="paginatedResults.length > 0"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6"
       >
         <Card
           v-for="product in paginatedResults"
@@ -298,8 +331,8 @@
                 loading="lazy"
               />
               <div class="absolute top-2 right-2">
-                <Badge variant="secondary" class="text-xs">
-                  {{ product.market }}
+                <Badge variant="secondary" class="text-xs capitalize">
+                  {{ product.category }}
                 </Badge>
               </div>
               <div v-if="product.isVerified" class="absolute top-2 left-2">
@@ -310,14 +343,14 @@
             </div>
 
             <!-- Product Info -->
-            <div class="p-4 space-y-3">
+            <div class="p-3 sm:p-4 space-y-3">
               <div>
-                <h3 class="font-semibold text-lg line-clamp-1 mb-1">
+                <h3 class="font-semibold text-base sm:text-lg line-clamp-2 mb-1">
                   {{ product.name }}
                 </h3>
-                <Badge variant="outline" class="text-xs">{{
+                <!-- <Badge variant="outline" class="text-xs">{{
                   product.category
-                }}</Badge>
+                }}</Badge> -->
               </div>
 
               <div class="space-y-2">
@@ -326,17 +359,17 @@
                   class="flex items-center gap-2"
                 >
                   <BuildingIcon
-                    class="h-4 w-4 text-muted-foreground flex-shrink-0"
+                    class="h-3 sm:h-4 w-3 sm:w-4 text-muted-foreground flex-shrink-0"
                   />
-                  <p class="text-sm text-muted-foreground truncate">
+                  <p class="text-xs sm:text-sm text-muted-foreground truncate">
                     {{ product.businessName }}
                   </p>
                 </div>
                 <div v-if="product.location" class="flex items-center gap-2">
                   <MapPinIcon
-                    class="h-4 w-4 text-muted-foreground flex-shrink-0"
+                    class="h-3 sm:h-4 w-3 sm:w-4 text-muted-foreground flex-shrink-0"
                   />
-                  <p class="text-sm text-muted-foreground truncate">
+                  <p class="text-xs sm:text-sm text-muted-foreground truncate">
                     {{ product.location }}
                   </p>
                 </div>
@@ -366,7 +399,7 @@
               <div class="flex items-center justify-end pt-2">
                 <Button
                   size="sm"
-                  class="flex items-center gap-2"
+                  class="flex items-center gap-2 w-full sm:w-auto"
                   @click="viewProductDetail(product)"
                 >
                   <EyeIcon class="h-3 w-3" />
@@ -379,32 +412,33 @@
       </div>
 
       <!-- No Results -->
-      <div v-else class="text-center py-12">
+      <div v-else class="text-center py-8 sm:py-12 px-4">
         <div
-          class="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4"
+          class="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-muted rounded-full flex items-center justify-center mb-4"
         >
-          <SearchIcon class="h-8 w-8 text-muted-foreground" />
+          <SearchIcon class="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
         </div>
-        <h3 class="text-lg font-semibold mb-2">No results found</h3>
-        <p class="text-muted-foreground mb-4">
+        <h3 class="text-base sm:text-lg font-semibold mb-2">No results found</h3>
+        <p class="text-sm sm:text-base text-muted-foreground mb-4 max-w-md mx-auto">
           Try adjusting your search criteria or reset filters
         </p>
-        <Button variant="outline" @click="resetFilters"> Reset Filters </Button>
+        <Button variant="outline" @click="resetFilters" class="w-full sm:w-auto"> Reset Filters </Button>
       </div>
 
       <!-- Pagination -->
       <div
         v-if="paginatedResults.length > 0"
-        class="flex items-center justify-between"
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
       >
-        <p class="text-sm text-muted-foreground">
+        <p class="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
           Showing {{ startIndex + 1 }}-{{ Math.min(endIndex, totalResults) }} of
           {{ totalResults }} results
         </p>
-        <div class="flex items-center gap-1">
+        <div class="flex items-center justify-center gap-1">
           <Button
             variant="outline"
             size="icon"
+            class="h-9 w-9"
             :disabled="currentPage === 1"
             @click="goToPage(currentPage - 1)"
           >
@@ -416,7 +450,7 @@
             :key="page"
             :variant="page === currentPage ? 'default' : 'outline'"
             size="sm"
-            class="h-8 w-8"
+            class="h-9 w-9 text-sm"
             @click="goToPage(page)"
           >
             {{ page }}
@@ -425,6 +459,7 @@
           <Button
             variant="outline"
             size="icon"
+            class="h-9 w-9"
             :disabled="currentPage === totalPages"
             @click="goToPage(currentPage + 1)"
           >
@@ -434,20 +469,34 @@
       </div>
     </div>
 
+    <!-- Empty State (Initial) -->
+    <div v-else class="text-center py-8 sm:py-12 px-4">
+      <div
+        class="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-muted rounded-full flex items-center justify-center mb-4"
+      >
+        <SearchIcon class="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
+      </div>
+      <h3 class="text-base sm:text-lg font-semibold mb-2">Ready to discover products?</h3>
+      <p class="text-sm sm:text-base text-muted-foreground mb-4 max-w-md mx-auto">
+        Enter your search terms above to find products and services from DPIM
+        members nationwide
+      </p>
+    </div>
+
     <!-- Product Detail Dialog -->
     <Dialog v-model:open="showProductDetailDialog">
-      <DialogContent class="sm:max-w-[900px] max-h-[90vh] flex flex-col p-0">
+      <DialogContent class="sm:max-w-[900px] max-h-[90vh] w-[95vw] sm:w-full flex flex-col p-0 overflow-hidden">
         <!-- Fixed Header -->
-        <DialogHeader class="px-6 py-4 border-b">
-          <DialogTitle>Product Details</DialogTitle>
-          <DialogDescription>
+        <DialogHeader class="px-4 sm:px-6 py-3 sm:py-4 border-b flex-shrink-0">
+          <DialogTitle class="text-base sm:text-lg">Product Details</DialogTitle>
+          <DialogDescription class="text-sm">
             Detailed information about the product and business
           </DialogDescription>
         </DialogHeader>
 
         <!-- Scrollable Content -->
-        <div class="flex-1 overflow-y-auto px-6 py-4">
-          <div v-if="selectedProduct" class="grid gap-6">
+        <div class="flex-1 overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-3 sm:py-4">
+          <div v-if="selectedProduct" class="grid gap-4 sm:gap-6 min-w-0">
             <!-- Product Image -->
             <div
               class="aspect-video w-full overflow-hidden bg-muted rounded-lg"
@@ -461,30 +510,30 @@
 
             <!-- Product Info -->
             <div>
-              <div class="flex items-start justify-between mb-3">
-                <h2 class="text-2xl font-bold">{{ selectedProduct.name }}</h2>
-                <div class="flex gap-2">
-                  <Badge>{{ selectedProduct.market }}</Badge>
+              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-2">
+                <h2 class="text-xl sm:text-2xl font-bold line-clamp-2 sm:line-clamp-1">{{ selectedProduct.name }}</h2>
+                <div class="flex gap-2 flex-wrap">
+                  <Badge variant="outline" class="capitalize text-xs">{{
+                    selectedProduct.category
+                  }}</Badge>
+
                   <Badge
                     v-if="selectedProduct.isVerified"
                     variant="default"
-                    class="bg-green-500"
+                    class="bg-green-500 text-xs"
                   >
                     Verified
                   </Badge>
                 </div>
-              </div>
-              <div class="flex items-center gap-3 mb-4">
-                <Badge variant="outline">{{ selectedProduct.category }}</Badge>
               </div>
             </div>
 
             <Separator />
 
             <!-- Product Description -->
-            <div>
+            <div class="min-w-0">
               <h3 class="font-semibold mb-3">Product Description</h3>
-              <p class="text-sm text-muted-foreground leading-relaxed">
+              <p class="text-sm text-muted-foreground leading-relaxed break-words">
                 {{ selectedProduct.description }}
               </p>
 
@@ -495,10 +544,10 @@
                   <li
                     v-for="feature in selectedProduct.features"
                     :key="feature"
-                    class="flex items-center gap-2"
+                    class="flex items-start gap-2 min-w-0"
                   >
-                    <div class="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                    {{ feature }}
+                    <div class="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                    <span class="break-words">{{ feature }}</span>
                   </li>
                 </ul>
               </div>
@@ -507,34 +556,57 @@
             <Separator />
 
             <!-- Product Link -->
-            <div v-if="selectedProduct.link">
+            <div v-if="selectedProduct.link" class="min-w-0">
               <h3 class="font-semibold mb-3">Product Link</h3>
-              <div class="flex items-center gap-2">
-                <a
-                  :href="selectedProduct.link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="text-blue-600 hover:text-blue-800 underline text-sm break-all"
+              <div class="space-y-3">
+                <!-- Link Display with Truncation -->
+                <div
+                  class="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border min-w-0"
                 >
-                  {{ selectedProduct.link }}
-                </a>
-                <button
-                  @click="copyToClipboard(selectedProduct.link)"
-                  class="text-gray-500 hover:text-gray-700 text-xs"
-                  type="button"
-                >
-                  Copy
-                </button>
+                  <GlobeIcon
+                    class="h-4 w-4 text-muted-foreground flex-shrink-0"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <p
+                      class="text-sm text-muted-foreground font-mono break-all text-wrap leading-relaxed"
+                      :title="selectedProduct.link"
+                    >
+                      {{ selectedProduct.link }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    class="flex items-center gap-2 w-full sm:w-auto"
+                    @click="copyToClipboard(selectedProduct.link)"
+                  >
+                    <CopyIcon class="h-3 w-3" />
+                    Copy Link
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    class="flex items-center gap-2 w-full sm:w-auto"
+                    @click="visitProductLink"
+                  >
+                    <ExternalLinkIcon class="h-3 w-3" />
+                    Open Link
+                  </Button>
+                </div>
               </div>
             </div>
 
             <Separator />
 
             <!-- Business Information -->
-            <div>
-              <div class="flex items-center justify-between mb-4">
+            <div class="min-w-0">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
                 <h3 class="font-semibold">Business Information</h3>
-                <div class="flex gap-2">
+                <div class="flex gap-2 flex-wrap">
                   <Badge
                     v-if="selectedProduct.business?.mofRegistration"
                     variant="default"
@@ -549,22 +621,22 @@
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 min-w-0">
                 <!-- Left Column -->
-                <div class="space-y-4">
+                <div class="space-y-4 min-w-0">
                   <!-- Business Name & Type -->
-                  <div class="flex items-start gap-3">
+                  <div class="flex items-start gap-3 min-w-0">
                     <BuildingIcon
-                      class="h-5 w-5 text-muted-foreground mt-0.5"
+                      class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0"
                     />
                     <div class="min-w-0 flex-1">
-                      <p class="font-medium truncate">
+                      <p class="font-medium break-words">
                         {{
                           selectedProduct.business?.name ||
                           selectedProduct.businessName
                         }}
                       </p>
-                      <p class="text-sm text-muted-foreground">
+                      <p class="text-sm text-muted-foreground break-words">
                         {{
                           getBusinessTypeLabel(
                             selectedProduct.business?.type
@@ -573,7 +645,7 @@
                       </p>
                       <p
                         v-if="selectedProduct.business?.ssm"
-                        class="text-xs text-muted-foreground"
+                        class="text-xs text-muted-foreground break-words"
                       >
                         SSM: {{ selectedProduct.business.ssm }}
                       </p>
@@ -581,10 +653,10 @@
                   </div>
 
                   <!-- Address -->
-                  <div class="flex items-start gap-3">
-                    <MapPinIcon class="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div class="flex items-start gap-3 min-w-0">
+                    <MapPinIcon class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
                     <div class="min-w-0 flex-1">
-                      <p class="text-sm">
+                      <p class="text-sm break-words">
                         {{
                           selectedProduct.business?.address ||
                           selectedProduct.location
@@ -599,10 +671,10 @@
                       selectedProduct.business?.phone ||
                       selectedProduct.contact?.phone
                     "
-                    class="flex items-center gap-3"
+                    class="flex items-center gap-3 min-w-0"
                   >
-                    <PhoneIcon class="h-5 w-5 text-muted-foreground" />
-                    <p class="text-sm">
+                    <PhoneIcon class="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <p class="text-sm break-words">
                       {{
                         selectedProduct.business?.phone ||
                         selectedProduct.contact?.phone
@@ -615,37 +687,43 @@
                       selectedProduct.business?.url ||
                       selectedProduct.contact?.website
                     "
-                    class="flex items-center gap-3"
+                    class="flex items-start gap-3 min-w-0"
                   >
-                    <GlobeIcon class="h-5 w-5 text-muted-foreground" />
-                    <a
-                      :href="
-                        selectedProduct.business?.url ||
-                        selectedProduct.contact?.website
-                      "
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="text-sm text-primary hover:underline truncate"
-                    >
-                      {{
-                        selectedProduct.business?.url ||
-                        selectedProduct.contact?.website
-                      }}
-                    </a>
+                    <GlobeIcon class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div class="min-w-0 flex-1">
+                      <a
+                        :href="
+                          selectedProduct.business?.url ||
+                          selectedProduct.contact?.website
+                        "
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-sm text-primary hover:underline break-all"
+                        :title="
+                          selectedProduct.business?.url ||
+                          selectedProduct.contact?.website
+                        "
+                      >
+                        {{
+                          selectedProduct.business?.url ||
+                          selectedProduct.contact?.website
+                        }}
+                      </a>
+                    </div>
                   </div>
                 </div>
 
                 <!-- Right Column -->
-                <div class="space-y-4">
+                <div class="space-y-4 min-w-0">
                   <!-- Business Sector -->
                   <div
                     v-if="selectedProduct.business?.sector"
-                    class="flex items-center gap-3"
+                    class="flex items-start gap-3 min-w-0"
                   >
-                    <TagIcon class="h-5 w-5 text-muted-foreground" />
-                    <div>
+                    <TagIcon class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div class="min-w-0 flex-1">
                       <p class="text-sm font-medium">Business Sector</p>
-                      <p class="text-sm text-muted-foreground">
+                      <p class="text-sm text-muted-foreground break-words">
                         {{
                           getBusinessSectorLabel(
                             selectedProduct.business.sector
@@ -658,12 +736,12 @@
                   <!-- Business Category -->
                   <div
                     v-if="selectedProduct.business?.category"
-                    class="flex items-center gap-3"
+                    class="flex items-start gap-3 min-w-0"
                   >
-                    <BuildingIcon class="h-5 w-5 text-muted-foreground" />
-                    <div>
+                    <BuildingIcon class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div class="min-w-0 flex-1">
                       <p class="text-sm font-medium">Business Category</p>
-                      <p class="text-sm text-muted-foreground">
+                      <p class="text-sm text-muted-foreground break-words">
                         {{
                           getBusinessCategoryLabel(
                             selectedProduct.business.category
@@ -679,12 +757,12 @@
                       selectedProduct.business?.mofRegistration &&
                       selectedProduct.business?.mofRegistrationNumber
                     "
-                    class="flex items-center gap-3"
+                    class="flex items-start gap-3 min-w-0"
                   >
-                    <ShieldCheckIcon class="h-5 w-5 text-muted-foreground" />
-                    <div>
+                    <ShieldCheckIcon class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div class="min-w-0 flex-1">
                       <p class="text-sm font-medium">MOF Registration</p>
-                      <p class="text-sm text-muted-foreground">
+                      <p class="text-sm text-muted-foreground break-words">
                         {{ selectedProduct.business.mofRegistrationNumber }}
                       </p>
                     </div>
@@ -693,12 +771,12 @@
                   <!-- Business Established -->
                   <div
                     v-if="selectedProduct.business?.createdAt"
-                    class="flex items-center gap-3"
+                    class="flex items-start gap-3 min-w-0"
                   >
-                    <CalendarIcon class="h-5 w-5 text-muted-foreground" />
-                    <div>
+                    <CalendarIcon class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div class="min-w-0 flex-1">
                       <p class="text-sm font-medium">Registered</p>
-                      <p class="text-sm text-muted-foreground">
+                      <p class="text-sm text-muted-foreground break-words">
                         {{ formatDate(selectedProduct.business.createdAt) }}
                       </p>
                     </div>
@@ -710,22 +788,22 @@
         </div>
 
         <!-- Fixed Footer -->
-        <DialogFooter class="px-6 py-4 border-t gap-2">
-          <Button variant="outline" @click="showProductDetailDialog = false">
+        <DialogFooter class="px-4 sm:px-6 py-3 sm:py-4 border-t gap-2 flex-col sm:flex-row flex-shrink-0 min-w-0">
+          <Button variant="outline" @click="showProductDetailDialog = false" class="w-full sm:w-auto order-last sm:order-first min-w-0">
             Close
           </Button>
           <Button
             v-if="selectedProduct?.link"
             variant="secondary"
-            class="flex items-center gap-2"
+            class="flex items-center gap-2 w-full sm:w-auto min-w-0"
             @click="visitProductLink"
           >
-            <GlobeIcon class="h-4 w-4" />
-            Visit Product
+            <GlobeIcon class="h-4 w-4 flex-shrink-0" />
+            <span class="truncate">Visit Product</span>
           </Button>
-          <Button class="flex items-center gap-2" @click="contactBusiness">
-            <MailIcon class="h-4 w-4" />
-            Contact Business
+          <Button class="flex items-center gap-2 w-full sm:w-auto min-w-0" @click="contactBusiness">
+            <MailIcon class="h-4 w-4 flex-shrink-0" />
+            <span class="truncate">Contact Business</span>
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -775,6 +853,8 @@ import {
   ChevronDownIcon,
   CalendarIcon,
   ShieldCheckIcon,
+  CopyIcon,
+  ExternalLinkIcon,
 } from "lucide-vue-next";
 import {
   Collapsible,
@@ -840,6 +920,7 @@ interface Product {
 
 // Reactive state
 const searchQuery = ref("");
+const activeSearchQuery = ref(""); // The actual query being used for filtering
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 const showProductDetailDialog = ref(false);
@@ -855,7 +936,8 @@ const searchHistory = ref<string[]>([
 ]);
 const showAdvancedFilters = ref(false);
 const searchInputRef = ref<HTMLInputElement>();
-const debounceTimer = ref<ReturnType<typeof setTimeout>>();
+const searchContainerRef = ref<HTMLDivElement>();
+const hasSearched = ref(false);
 
 // Data state
 const allProducts = ref<Product[]>([]);
@@ -902,16 +984,6 @@ const searchSuggestions = ref([
   { text: "EV Maintenance", icon: "CarIcon", category: "Automotive" },
   { text: "Smart Building IoT", icon: "HammerIcon", category: "Construction" },
 ]);
-
-// Quick filters computed from tags
-const quickFilters = computed(() => {
-  return allTags.value.slice(0, 8).map((tag) => ({
-    label: tag.name,
-    value: tag.slug,
-    icon: "TagIcon",
-    type: "tag",
-  }));
-});
 
 // fetchProductCategories
 const fetchProductCategories = async () => {
@@ -997,11 +1069,16 @@ const fetchAllTags = async () => {
 
 // Computed properties
 const filteredResults = computed(() => {
+  // Don't show any results if no search has been performed
+  if (!hasSearched.value) {
+    return [];
+  }
+
   let results = [...allProducts.value];
 
   // Apply search query
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.toLowerCase();
+  if (activeSearchQuery.value.trim()) {
+    const query = activeSearchQuery.value.toLowerCase();
     results = results.filter(
       (product) =>
         product.name.toLowerCase().includes(query) ||
@@ -1113,8 +1190,11 @@ const activeFilters = computed(() => {
 
 // Methods
 function performSearch() {
+  hasSearched.value = true;
+  activeSearchQuery.value = searchQuery.value; // Set the active search query
   isLoading.value = true;
   currentPage.value = 1;
+  showSuggestions.value = false; // Close suggestions after search
 
   // Simulate API delay
   setTimeout(() => {
@@ -1124,13 +1204,14 @@ function performSearch() {
 
 function resetFilters() {
   searchQuery.value = "";
+  activeSearchQuery.value = "";
   filters.value = {
     category: "all",
     tag: "all",
   };
   sortBy.value = "relevance";
   currentPage.value = 1;
-  performSearch();
+  hasSearched.value = false;
 }
 
 function viewProductDetail(product: Product) {
@@ -1207,13 +1288,6 @@ const formatDate = (dateString: string): string => {
 };
 
 // Enhanced methods for modern UI
-const handleSearchInput = () => {
-  clearTimeout(debounceTimer.value);
-  debounceTimer.value = setTimeout(() => {
-    performSearch();
-  }, 300);
-};
-
 const selectSuggestion = (suggestion: string) => {
   searchQuery.value = suggestion;
   showSuggestions.value = false;
@@ -1229,23 +1303,15 @@ const selectSuggestion = (suggestion: string) => {
   performSearch();
 };
 
-const applyQuickFilter = (filter: any) => {
-  if (filter.type === "category") {
-    filters.value.category = filter.value;
-  } else if (filter.type === "tag") {
-    filters.value.tag = filter.value;
-  }
-
-  performSearch();
-};
-
 const removeFilter = (filterKey: string) => {
   if (filterKey === "category") {
     filters.value.category = "all";
   } else if (filterKey === "tag") {
     filters.value.tag = "all";
   }
-  performSearch();
+  if (hasSearched.value) {
+    performSearch();
+  }
 };
 
 const clearAllFilters = () => {
@@ -1253,12 +1319,14 @@ const clearAllFilters = () => {
     category: "all",
     tag: "all",
   };
-  performSearch();
+  if (hasSearched.value) {
+    performSearch();
+  }
 };
 
 // Close suggestions when clicking outside
 const handleClickOutside = (event: Event) => {
-  if (!searchInputRef.value?.contains(event.target as Node)) {
+  if (!searchContainerRef.value?.contains(event.target as Node)) {
     showSuggestions.value = false;
   }
 };

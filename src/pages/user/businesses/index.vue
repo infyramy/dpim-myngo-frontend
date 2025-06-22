@@ -1,135 +1,193 @@
 <template>
   <div class="space-y-6">
     <!-- Header Section -->
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 sm:px-0">
       <div>
-        <h1 class="text-3xl font-bold">My Businesses</h1>
-        <p class="text-muted-foreground mt-1">
+        <h1 class="text-2xl sm:text-3xl font-bold">My Businesses</h1>
+        <p class="text-muted-foreground mt-1 text-sm sm:text-base">
           Manage your business registrations and information
         </p>
       </div>
       <Button
         @click="navigateToAddBusiness"
         :disabled="isSubmitting"
-        class="flex items-center gap-2"
+        class="flex items-center gap-2 w-full sm:w-auto"
       >
         <PlusIcon class="h-4 w-4" />
-        Business Form
+        New Business
       </Button>
     </div>
 
     <!-- Search and Filters -->
-    <Card>
-      <CardContent class="p-6">
-        <div class="space-y-4">
-          <!-- Search Input -->
-          <div class="relative">
-            <SearchIcon
-              class="absolute left-3 top-3 h-4 w-4 text-muted-foreground"
-            />
-            <Input
-              v-model="searchQuery"
-              placeholder="Search your businesses..."
-              class="pl-9 w-full"
-              @input="performSearch"
-            />
-          </div>
+    <div class="px-4 sm:px-0">
+      <Card>
+        <CardContent class="p-4 sm:p-6">
+          <div class="space-y-4">
+            <!-- Search Input -->
+            <div class="relative">
+              <SearchIcon
+                class="absolute left-3 top-3 h-4 w-4 text-muted-foreground"
+              />
+              <Input
+                v-model="searchQuery"
+                placeholder="Search your businesses..."
+                class="pl-9 w-full"
+                @input="performSearch"
+              />
+            </div>
 
-          <!-- Filter Controls -->
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <Label for="businessType">Business Type</Label>
-              <Select v-model="filters.type" @update:modelValue="performSearch">
-                <SelectTrigger id="businessType" class="w-full mt-1">
-                  <SelectValue placeholder="All types" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All types</SelectItem>
-                  <SelectItem
-                    v-for="type in businessTypeOptions"
-                    :key="type.value"
-                    :value="type.value"
+            <!-- Mobile Filter Toggle -->
+            <div class="sm:hidden">
+              <Collapsible v-model:open="showMobileFilters">
+                <CollapsibleTrigger asChild>
+                  <Button
+                    variant="outline"
+                    class="w-full justify-between text-sm"
                   >
-                    {{ type.title }}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                    <div class="flex items-center gap-2">
+                      <SlidersHorizontalIcon class="h-4 w-4" />
+                      Filters
+                      <Badge v-if="activeFiltersCount > 0" variant="secondary" class="text-xs">
+                        {{ activeFiltersCount }}
+                      </Badge>
+                    </div>
+                    <ChevronDownIcon
+                      class="h-4 w-4 transition-transform duration-200"
+                      :class="{ 'rotate-180': showMobileFilters }"
+                    />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent class="mt-3">
+                  <!-- Mobile Filter Controls -->
+                  <div class="grid grid-cols-1 gap-4">
+                    <div>
+                      <Label for="businessSectorMobile" class="text-sm">Sector</Label>
+                      <Select
+                        v-model="filters.sector"
+                        @update:modelValue="performSearch"
+                      >
+                        <SelectTrigger id="businessSectorMobile" class="w-full mt-1 h-10">
+                          <SelectValue placeholder="All sectors" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All sectors</SelectItem>
+                          <SelectItem
+                            v-for="sector in businessSectorOptions"
+                            :key="sector.value"
+                            :value="sector.value"
+                          >
+                            {{ sector.title }}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label for="mofRegistrationMobile" class="text-sm">MOF Registration</Label>
+                      <Select
+                        v-model="filters.mofRegistration"
+                        @update:modelValue="performSearch"
+                      >
+                        <SelectTrigger id="mofRegistrationMobile" class="w-full mt-1 h-10">
+                          <SelectValue placeholder="All businesses" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All businesses</SelectItem>
+                          <SelectItem value="true">MOF Registered</SelectItem>
+                          <SelectItem value="false">Not MOF Registered</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      class="w-full flex items-center gap-2 h-10"
+                      @click="resetFilters"
+                    >
+                      <RefreshCcwIcon class="h-4 w-4" />
+                      Reset Filters
+                    </Button>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
 
-            <div>
-              <Label for="businessSector">Sector</Label>
-              <Select
-                v-model="filters.sector"
-                @update:modelValue="performSearch"
-              >
-                <SelectTrigger id="businessSector" class="w-full mt-1">
-                  <SelectValue placeholder="All sectors" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All sectors</SelectItem>
-                  <SelectItem
-                    v-for="sector in businessSectorOptions"
-                    :key="sector.value"
-                    :value="sector.value"
-                  >
-                    {{ sector.title }}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <!-- Desktop Filter Controls -->
+            <div class="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <Label for="businessSector" class="text-sm">Sector</Label>
+                <Select
+                  v-model="filters.sector"
+                  @update:modelValue="performSearch"
+                >
+                  <SelectTrigger id="businessSector" class="w-full mt-1 h-10">
+                    <SelectValue placeholder="All sectors" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All sectors</SelectItem>
+                    <SelectItem
+                      v-for="sector in businessSectorOptions"
+                      :key="sector.value"
+                      :value="sector.value"
+                    >
+                      {{ sector.title }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div>
-              <Label for="mofRegistration">MOF Registration</Label>
-              <Select
-                v-model="filters.mofRegistration"
-                @update:modelValue="performSearch"
-              >
-                <SelectTrigger id="mofRegistration" class="w-full mt-1">
-                  <SelectValue placeholder="All businesses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All businesses</SelectItem>
-                  <SelectItem value="true">MOF Registered</SelectItem>
-                  <SelectItem value="false">Not MOF Registered</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div>
+                <Label for="mofRegistration" class="text-sm">MOF Registration</Label>
+                <Select
+                  v-model="filters.mofRegistration"
+                  @update:modelValue="performSearch"
+                >
+                  <SelectTrigger id="mofRegistration" class="w-full mt-1 h-10">
+                    <SelectValue placeholder="All businesses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All businesses</SelectItem>
+                    <SelectItem value="true">MOF Registered</SelectItem>
+                    <SelectItem value="false">Not MOF Registered</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div class="flex items-end">
-              <Button
-                variant="outline"
-                class="w-full flex items-center gap-2"
-                @click="resetFilters"
-              >
-                <RefreshCcwIcon class="h-4 w-4" />
-                Reset
-              </Button>
+              <div class="flex items-end sm:col-span-2 lg:col-span-1">
+                <Button
+                  variant="outline"
+                  class="w-full flex items-center gap-2 h-10"
+                  @click="resetFilters"
+                >
+                  <RefreshCcwIcon class="h-4 w-4" />
+                  Reset
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
 
     <!-- Businesses Section -->
-    <div>
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-semibold">
+    <div class="px-4 sm:px-0">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+        <h2 class="text-lg sm:text-xl font-semibold">
           Your Businesses
-          <span class="text-base font-normal text-muted-foreground ml-2">
+          <span class="text-sm sm:text-base font-normal text-muted-foreground ml-2">
             ({{ totalResults }} businesses)
           </span>
         </h2>
         <div class="flex items-center gap-2">
-          <p class="text-sm text-muted-foreground">Sort by:</p>
+          <p class="text-sm text-muted-foreground whitespace-nowrap">Sort by:</p>
           <Select v-model="sortBy" @update:modelValue="performSearch">
-            <SelectTrigger class="w-[180px] h-8">
+            <SelectTrigger class="w-[140px] sm:w-[180px] h-9">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="newest">Newest</SelectItem>
               <SelectItem value="oldest">Oldest</SelectItem>
               <SelectItem value="name">Name A-Z</SelectItem>
-              <SelectItem value="type">Business Type</SelectItem>
               <SelectItem value="sector">Sector</SelectItem>
             </SelectContent>
           </Select>
@@ -139,54 +197,54 @@
       <!-- Loading State -->
       <div
         v-if="isLoading"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6"
       >
         <Card v-for="i in 6" :key="i" class="animate-pulse overflow-hidden">
           <CardContent class="p-0">
             <!-- Business Header Skeleton -->
-            <div class="p-4 border-b bg-muted/30">
+            <div class="p-3 sm:p-4 border-b bg-muted/30">
               <div class="flex items-start justify-between mb-2">
                 <div class="flex-1">
-                  <div class="h-6 bg-muted rounded w-3/4 mb-2"></div>
-                  <div class="h-4 bg-muted rounded w-1/2"></div>
+                  <div class="h-5 sm:h-6 bg-muted rounded w-3/4 mb-2"></div>
+                  <div class="h-3 sm:h-4 bg-muted rounded w-1/2"></div>
                 </div>
-                <div class="h-6 bg-muted rounded w-12 ml-2"></div>
+                <div class="h-5 sm:h-6 bg-muted rounded w-10 sm:w-12 ml-2"></div>
               </div>
               <div class="flex gap-2 mt-3">
-                <div class="h-5 bg-muted rounded w-16"></div>
-                <div class="h-5 bg-muted rounded w-20"></div>
+                <div class="h-4 sm:h-5 bg-muted rounded w-14 sm:w-16"></div>
+                <div class="h-4 sm:h-5 bg-muted rounded w-16 sm:w-20"></div>
               </div>
             </div>
 
             <!-- Business Info Skeleton -->
-            <div class="p-4 space-y-3">
+            <div class="p-3 sm:p-4 space-y-3">
               <div class="space-y-2">
                 <div class="flex items-start gap-2">
                   <div
-                    class="h-4 w-4 bg-muted rounded mt-0.5 flex-shrink-0"
+                    class="h-3 sm:h-4 w-3 sm:w-4 bg-muted rounded mt-0.5 flex-shrink-0"
                   ></div>
-                  <div class="h-4 bg-muted rounded w-full"></div>
+                  <div class="h-3 sm:h-4 bg-muted rounded w-full"></div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <div class="h-4 w-4 bg-muted rounded flex-shrink-0"></div>
-                  <div class="h-4 bg-muted rounded w-2/3"></div>
+                  <div class="h-3 sm:h-4 w-3 sm:w-4 bg-muted rounded flex-shrink-0"></div>
+                  <div class="h-3 sm:h-4 bg-muted rounded w-2/3"></div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <div class="h-4 w-4 bg-muted rounded flex-shrink-0"></div>
-                  <div class="h-4 bg-muted rounded w-1/2"></div>
+                  <div class="h-3 sm:h-4 w-3 sm:w-4 bg-muted rounded flex-shrink-0"></div>
+                  <div class="h-3 sm:h-4 bg-muted rounded w-1/2"></div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <div class="h-4 w-4 bg-muted rounded flex-shrink-0"></div>
-                  <div class="h-4 bg-muted rounded w-3/4"></div>
+                  <div class="h-3 sm:h-4 w-3 sm:w-4 bg-muted rounded flex-shrink-0"></div>
+                  <div class="h-3 sm:h-4 bg-muted rounded w-3/4"></div>
                 </div>
               </div>
 
               <div class="flex justify-between pt-2 gap-2">
                 <div class="flex gap-1 flex-1">
-                  <div class="h-8 bg-muted rounded flex-1"></div>
-                  <div class="h-8 bg-muted rounded flex-1"></div>
+                  <div class="h-7 sm:h-8 bg-muted rounded flex-1"></div>
+                  <div class="h-7 sm:h-8 bg-muted rounded flex-1"></div>
                 </div>
-                <div class="h-8 w-8 bg-muted rounded"></div>
+                <div class="h-7 sm:h-8 w-7 sm:w-8 bg-muted rounded"></div>
               </div>
             </div>
           </CardContent>
@@ -196,7 +254,7 @@
       <!-- Businesses Grid -->
       <div
         v-else-if="paginatedResults.length > 0"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6"
       >
         <Card
           v-for="business in paginatedResults"
@@ -205,24 +263,24 @@
         >
           <CardContent class="p-0">
             <!-- Business Header -->
-            <div class="p-4 border-b bg-muted/30">
+            <div class="p-3 sm:p-4 border-b bg-muted/30">
               <div class="flex items-start justify-between mb-2">
-                <div class="flex-1">
-                  <h3 class="font-semibold text-lg line-clamp-1 mb-1">
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-semibold text-base sm:text-lg line-clamp-1 mb-1">
                     {{ business.name }}
                   </h3>
-                  <p class="text-sm text-muted-foreground">
+                  <p class="text-xs sm:text-sm text-muted-foreground">
                     SSM: {{ business.ssm }}
                   </p>
                 </div>
                 <Badge
                   :variant="business.mofRegistration ? 'default' : 'secondary'"
-                  class="text-xs ml-2"
+                  class="text-xs ml-2 flex-shrink-0"
                 >
                   {{ business.mofRegistration ? "MOF" : "No MOF" }}
                 </Badge>
               </div>
-              <div class="flex gap-2">
+              <div class="flex gap-1 sm:gap-2 flex-wrap">
                 <Badge variant="outline" class="text-xs">
                   {{ getBusinessTypeLabel(business.type) }}
                 </Badge>
@@ -233,11 +291,11 @@
             </div>
 
             <!-- Business Info -->
-            <div class="p-4 space-y-3">
-              <div class="space-y-2 text-sm">
+            <div class="p-3 sm:p-4 space-y-3">
+              <div class="space-y-2 text-xs sm:text-sm">
                 <div class="flex items-start gap-2">
                   <MapPinIcon
-                    class="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0"
+                    class="h-3 sm:h-4 w-3 sm:w-4 text-muted-foreground mt-0.5 flex-shrink-0"
                   />
                   <span class="text-muted-foreground line-clamp-2">{{
                     business.address
@@ -245,7 +303,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                   <PhoneIcon
-                    class="h-4 w-4 text-muted-foreground flex-shrink-0"
+                    class="h-3 sm:h-4 w-3 sm:w-4 text-muted-foreground flex-shrink-0"
                   />
                   <span class="text-muted-foreground">{{
                     business.phone
@@ -253,7 +311,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                   <TagIcon
-                    class="h-4 w-4 text-muted-foreground flex-shrink-0"
+                    class="h-3 sm:h-4 w-3 sm:w-4 text-muted-foreground flex-shrink-0"
                   />
                   <span class="text-muted-foreground">
                     {{ getBusinessCategoryLabel(business.category) }}
@@ -261,7 +319,7 @@
                 </div>
                 <div v-if="business.mofRegistration && business.mofRegistrationNumber" class="flex items-center gap-2">
                   <ShieldCheckIcon
-                    class="h-4 w-4 text-muted-foreground flex-shrink-0"
+                    class="h-3 sm:h-4 w-3 sm:w-4 text-muted-foreground flex-shrink-0"
                   />
                   <span class="text-muted-foreground">
                     MOF: {{ business.mofRegistrationNumber }}
@@ -269,13 +327,13 @@
                 </div>
                 <div v-if="business.url" class="flex items-center gap-2">
                   <GlobeIcon
-                    class="h-4 w-4 text-muted-foreground flex-shrink-0"
+                    class="h-3 sm:h-4 w-3 sm:w-4 text-muted-foreground flex-shrink-0"
                   />
                   <a
                     :href="business.url"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="text-primary hover:underline text-sm truncate"
+                    class="text-primary hover:underline text-xs sm:text-sm truncate"
                   >
                     {{ business.url }}
                   </a>
@@ -283,31 +341,31 @@
               </div>
 
               <div class="flex justify-between pt-2 gap-2">
-                <div class="flex gap-1">
+                <div class="flex gap-1 flex-1">
                   <Button
                     variant="outline"
                     size="sm"
-                    class="flex items-center gap-1 flex-1"
+                    class="flex items-center gap-1 flex-1 text-xs sm:text-sm h-8 sm:h-9"
                     @click="viewBusinessDetail(business)"
                   >
                     <EyeIcon class="h-3 w-3" />
-                    View
+                    <span class="hidden sm:inline">View</span>
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    class="flex items-center gap-1 flex-1"
+                    class="flex items-center gap-1 flex-1 text-xs sm:text-sm h-8 sm:h-9"
                     @click="navigateToEditBusiness(business.id)"
                     :disabled="isSubmitting"
                   >
                     <PencilIcon class="h-3 w-3" />
-                    Edit
+                    <span class="hidden sm:inline">Edit</span>
                   </Button>
                 </div>
                 <Button
                   variant="destructive"
                   size="sm"
-                  class="flex items-center gap-1"
+                  class="flex items-center gap-1 h-8 sm:h-9 px-2 sm:px-3"
                   @click="confirmDeleteBusiness(business)"
                   :disabled="isSubmitting"
                 >
@@ -320,28 +378,28 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else class="text-center py-12">
+      <div v-else class="text-center py-8 sm:py-12 px-4">
         <div
-          class="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4"
+          class="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-muted rounded-full flex items-center justify-center mb-4"
         >
-          <BuildingIcon class="h-8 w-8 text-muted-foreground" />
+          <BuildingIcon class="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
         </div>
-        <h3 class="text-lg font-semibold mb-2">
+        <h3 class="text-base sm:text-lg font-semibold mb-2">
           {{ hasActiveFilters ? "No businesses found" : "No businesses yet" }}
         </h3>
-        <p class="text-muted-foreground mb-4">
+        <p class="text-sm sm:text-base text-muted-foreground mb-4 max-w-md mx-auto">
           {{
             hasActiveFilters
               ? "Try adjusting your search criteria or reset filters"
               : 'You haven\'t registered any businesses yet. Click "Add Business" to get started.'
           }}
         </p>
-        <div class="flex justify-center gap-2">
+        <div class="flex flex-col sm:flex-row justify-center gap-2">
           <Button
             v-if="hasActiveFilters"
             variant="outline"
             @click="resetFilters"
-            class="flex items-center gap-2"
+            class="flex items-center gap-2 w-full sm:w-auto"
           >
             <RefreshCcwIcon class="h-4 w-4" />
             Reset Filters
@@ -349,10 +407,10 @@
           <Button
             @click="navigateToAddBusiness"
             :disabled="isSubmitting"
-            class="flex items-center gap-2"
+            class="flex items-center gap-2 w-full sm:w-auto"
           >
             <PlusIcon class="h-4 w-4" />
-            Business Form
+            New Business
           </Button>
         </div>
       </div>
@@ -360,20 +418,21 @@
       <!-- Pagination -->
       <div
         v-if="paginatedResults.length > 0 && totalPages > 1"
-        class="flex items-center justify-between"
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
       >
-        <p class="text-sm text-muted-foreground">
+        <p class="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
           Showing {{ startIndex + 1 }}-{{ Math.min(endIndex, totalResults) }} of
           {{ totalResults }} businesses
         </p>
-        <div class="flex items-center gap-1">
+        <div class="flex items-center justify-center gap-1">
           <Button
             variant="outline"
             size="icon"
+            class="h-8 w-8 sm:h-9 sm:w-9"
             :disabled="currentPage === 1"
             @click="goToPage(currentPage - 1)"
           >
-            <ChevronLeftIcon class="h-4 w-4" />
+            <ChevronLeftIcon class="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
 
           <Button
@@ -381,7 +440,7 @@
             :key="page"
             :variant="page === currentPage ? 'default' : 'outline'"
             size="sm"
-            class="h-8 w-8"
+            class="h-8 w-8 sm:h-9 sm:w-9 text-xs sm:text-sm"
             @click="goToPage(page)"
           >
             {{ page }}
@@ -390,10 +449,11 @@
           <Button
             variant="outline"
             size="icon"
+            class="h-8 w-8 sm:h-9 sm:w-9"
             :disabled="currentPage === totalPages"
             @click="goToPage(currentPage + 1)"
           >
-            <ChevronRightIcon class="h-4 w-4" />
+            <ChevronRightIcon class="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         </div>
       </div>
@@ -636,7 +696,14 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ShieldCheckIcon,
+  SlidersHorizontalIcon,
+  ChevronDownIcon,
 } from "lucide-vue-next";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 
 // Types and composables
 import type { Business } from "@/types/business";
@@ -654,7 +721,6 @@ const router = useRouter();
 const isLoading = ref(false);
 const isSubmitting = ref(false);
 
-const BUSINESS_TYPE_OPTIONS = ref<any[]>([]);
 const BUSINESS_SECTOR_OPTIONS = ref<any[]>([]);
 const BUSINESS_CATEGORY_OPTIONS = ref<any[]>([]);
 
@@ -671,16 +737,15 @@ const searchQuery = ref("");
 const currentPage = ref(1);
 const itemsPerPage = ref(9);
 const sortBy = ref("newest");
+const showMobileFilters = ref(false);
 
 // Filters
 const filters = ref({
-  type: "all",
   sector: "all",
   mofRegistration: "all",
 });
 
 // Filter options (using the imported constants)
-const businessTypeOptions = BUSINESS_TYPE_OPTIONS;
 const businessSectorOptions = BUSINESS_SECTOR_OPTIONS;
 
 // Computed properties
@@ -700,12 +765,6 @@ const filteredResults = computed(() => {
   }
 
   // Apply filters
-  if (filters.value.type !== "all") {
-    results = results.filter(
-      (business) => business.type === filters.value.type
-    );
-  }
-
   if (filters.value.sector !== "all") {
     results = results.filter(
       (business) => business.sector === filters.value.sector
@@ -737,9 +796,6 @@ const filteredResults = computed(() => {
       break;
     case "name":
       results.sort((a, b) => a.name.localeCompare(b.name));
-      break;
-    case "type":
-      results.sort((a, b) => a.type.localeCompare(b.type));
       break;
     case "sector":
       results.sort((a, b) => a.sector.localeCompare(b.sector));
@@ -775,10 +831,16 @@ const visiblePages = computed(() => {
 const hasActiveFilters = computed(() => {
   return (
     searchQuery.value.trim() !== "" ||
-    filters.value.type !== "all" ||
     filters.value.sector !== "all" ||
     filters.value.mofRegistration !== "all"
   );
+});
+
+const activeFiltersCount = computed(() => {
+  let count = 0;
+  if (filters.value.sector !== "all") count++;
+  if (filters.value.mofRegistration !== "all") count++;
+  return count;
 });
 
 // Utility functions for labels
@@ -811,7 +873,6 @@ const performSearch = () => {
 const resetFilters = () => {
   searchQuery.value = "";
   filters.value = {
-    type: "all",
     sector: "all",
     mofRegistration: "all",
   };
@@ -866,11 +927,6 @@ const handleDeleteBusiness = async () => {
 
 async function fetchLookup() {
   try {
-    const bt = await apiFetching().get(`/lookup?lookup_group=business_type`);
-    console.log("response.data: ", bt.data.lookup_data);
-
-    BUSINESS_TYPE_OPTIONS.value = bt.data.lookup_data;
-
     const bs = await apiFetching().get(`/lookup?lookup_group=business_sector`);
     console.log("response.data: ", bs.data.lookup_data);
 

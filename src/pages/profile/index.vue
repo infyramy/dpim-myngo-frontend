@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-4 md:space-y-6 px-4 md:px-0">
     <!-- Loading State -->
     <div v-if="isLoading" class="flex justify-center items-center py-8">
       <div
@@ -9,27 +9,36 @@
 
     <!-- Profile Information Card -->
     <Card v-else-if="profile">
-      <CardHeader>
-        <div class="flex items-center justify-between">
+      <CardHeader class="pb-4 md:pb-6">
+        <div class="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
           <div>
-            <CardTitle>Personal Information</CardTitle>
-            <CardDescription>Update your personal information</CardDescription>
+            <CardTitle class="text-lg md:text-xl">Personal Information</CardTitle>
+            <CardDescription class="text-sm">Update your personal information</CardDescription>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <Button
               v-if="!isEditing"
               @click="toggleEditMode"
-              class="flex items-center gap-2"
+              class="flex items-center justify-center gap-2 w-full sm:w-auto"
+              size="sm"
             >
               <PencilIcon class="h-4 w-4" />
               Edit Profile
             </Button>
-            <div v-else class="flex gap-2">
-              <Button variant="outline" @click="cancelEdit"> Cancel </Button>
+            <div v-else class="flex flex-col sm:flex-row gap-2">
+              <Button 
+                variant="outline" 
+                @click="cancelEdit"
+                class="w-full sm:w-auto"
+                size="sm"
+              > 
+                Cancel 
+              </Button>
               <Button
                 @click="handleSaveProfile"
                 :disabled="isLoading"
-                class="flex items-center gap-2"
+                class="flex items-center justify-center gap-2 w-full sm:w-auto"
+                size="sm"
               >
                 <SaveIcon class="h-4 w-4" />
                 {{ isLoading ? "Saving..." : "Save" }}
@@ -38,26 +47,27 @@
           </div>
         </div>
       </CardHeader>
-      <CardContent class="p-6">
+      <CardContent class="p-4 md:p-6">
         <!-- Avatar Section -->
         <div
-          class="flex flex-col sm:flex-row gap-6 items-start sm:items-center pb-6 mb-6 border-b"
+          class="flex flex-col sm:flex-row gap-4 md:gap-6 items-center sm:items-start pb-4 md:pb-6 mb-4 md:mb-6 border-b"
         >
-          <Avatar class="h-24 w-24">
+          <Avatar class="h-20 w-20 md:h-24 md:w-24 shrink-0">
             <AvatarImage
               :src="profile.avatar || '/avatars/user-placeholder.jpg'"
               alt="User"
             />
-            <AvatarFallback class="text-lg">
+            <AvatarFallback class="text-base md:text-lg">
               {{ getInitials(profile.user_fullname) }}
             </AvatarFallback>
           </Avatar>
-          <div class="space-y-2">
-            <h3 class="text-xl font-semibold">{{ profile.user_fullname }}</h3>
-            <p class="text-muted-foreground">
-              {{ profile.user_email }} | {{ profile.user_mykad_number }}
-            </p>
-            <p class="text-sm text-muted-foreground">
+          <div class="space-y-1 md:space-y-2 text-center sm:text-left">
+            <h3 class="text-lg md:text-xl font-semibold">{{ profile.user_fullname }}</h3>
+            <div class="text-sm md:text-base text-muted-foreground space-y-1">
+              <p>{{ profile.user_email }}</p>
+              <p>{{ profile.user_mykad_number }}</p>
+            </div>
+            <p class="text-xs md:text-sm text-muted-foreground">
               Registered on {{ formatDate(profile.user_created_at) }}
             </p>
           </div>
@@ -65,38 +75,41 @@
 
         <!-- Form Fields -->
         <form @submit.prevent="handleSaveProfile">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div class="space-y-2">
-              <Label for="fullName">Full Name</Label>
+              <Label for="fullName" class="text-sm font-medium">Full Name</Label>
               <Input
                 id="fullName"
                 v-model="formData.fullname"
                 disabled
                 required
+                class="h-10"
               />
             </div>
             <div class="space-y-2">
-              <Label for="ic">MyKad Number</Label>
+              <Label for="ic" class="text-sm font-medium">MyKad Number</Label>
               <Input
                 id="ic"
                 v-model="formData.mykad_number"
                 disabled
                 placeholder="123456-78-9012"
+                class="h-10"
               />
             </div>
             <div class="space-y-2">
-              <Label for="email">Email</Label>
+              <Label for="email" class="text-sm font-medium">Email</Label>
               <Input
                 id="email"
                 v-model="profile.user_email"
                 disabled
                 type="email"
+                class="h-10"
               />
             </div>
             <div class="space-y-2">
-              <Label for="state">State</Label>
+              <Label for="state" class="text-sm font-medium">State</Label>
               <Select v-model="formData.state" disabled>
-                <SelectTrigger id="state" class="w-full">
+                <SelectTrigger id="state" class="w-full h-10">
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
                 <SelectContent>
@@ -111,10 +124,10 @@
               </Select>
             </div>
             <div class="space-y-2">
-              <Label for="phone">Mobile Number</Label>
+              <Label for="phone" class="text-sm font-medium">Mobile Number</Label>
               <div class="flex">
                 <div
-                  class="flex items-center px-3 border border-r-0 rounded-l-md bg-muted text-muted-foreground text-sm"
+                  class="flex items-center px-2 md:px-3 border border-r-0 rounded-l-md bg-muted text-muted-foreground text-xs md:text-sm min-w-[50px] md:min-w-[60px] justify-center"
                 >
                   +60
                 </div>
@@ -123,15 +136,15 @@
                   v-model="mobileNumberInput"
                   :disabled="!isEditing"
                   placeholder="123456789"
-                  class="rounded-l-none"
+                  class="rounded-l-none h-10"
                   @input="updateMobileNumber"
                 />
               </div>
             </div>
             <div class="space-y-2">
-              <Label for="gender">Gender</Label>
+              <Label for="gender" class="text-sm font-medium">Gender</Label>
               <Select v-model="formData.gender" :disabled="!isEditing">
-                <SelectTrigger id="gender" class="w-full">
+                <SelectTrigger id="gender" class="w-full h-10">
                   <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
                 <SelectContent>
@@ -141,56 +154,61 @@
               </Select>
             </div>
             <div class="space-y-2">
-              <Label for="dateOfBirth">Date of Birth</Label>
+              <Label for="dateOfBirth" class="text-sm font-medium">Date of Birth</Label>
               <Input
                 id="dateOfBirth"
                 v-model="formData.date_of_birth"
                 :disabled="!isEditing"
                 type="date"
+                class="h-10"
               />
             </div>
             <div class="md:col-span-2 space-y-2">
-              <Label for="address">Address</Label>
+              <Label for="address" class="text-sm font-medium">Address</Label>
               <Textarea
                 id="address"
                 v-model="formData.residential_address"
                 :disabled="!isEditing"
                 rows="3"
                 placeholder="Enter full address"
+                class="resize-none"
               />
             </div>
             <div class="space-y-2">
-              <Label for="postcode">Postcode</Label>
+              <Label for="postcode" class="text-sm font-medium">Postcode</Label>
               <Input
                 id="postcode"
                 v-model="formData.postcode"
                 :disabled="!isEditing"
                 placeholder="12345"
+                class="h-10"
               />
             </div>
             <div class="space-y-2">
-              <Label for="city">City</Label>
+              <Label for="city" class="text-sm font-medium">City</Label>
               <Input
                 id="city"
                 v-model="formData.city"
                 :disabled="!isEditing"
                 placeholder="City name"
+                class="h-10"
               />
             </div>
             <div class="space-y-2">
-              <Label for="spouseName">Spouse Name</Label>
+              <Label for="spouseName" class="text-sm font-medium">Spouse Name</Label>
               <Input
                 id="spouseName"
                 v-model="formData.spouse_name"
                 :disabled="!isEditing"
                 placeholder="Spouse name (optional)"
+                class="h-10"
               />
             </div>
             <div class="space-y-2">
-              <Label for="spousePhone">Spouse Phone</Label>
+              <Label for="spousePhone" class="text-sm font-medium">Spouse Phone</Label>
               <div class="flex">
                 <div
-                  class="flex items-center px-3 border border-r-0 rounded-l-md bg-muted text-muted-foreground text-sm"
+                  class="flex items-center px-2 md:px-3 border border-r-0 rounded-l-md bg-muted text-muted-foreground text-xs md:text-sm min-w-[50px] md:min-w-[60px] justify-center"
                 >
                   +60
                 </div>
@@ -199,7 +217,7 @@
                   v-model="spouseMobileNumberInput"
                   :disabled="!isEditing"
                   placeholder="123456789 (optional)"
-                  class="rounded-l-none"
+                  class="rounded-l-none h-10"
                   @input="updateSpouseMobileNumber"
                 />
               </div>
