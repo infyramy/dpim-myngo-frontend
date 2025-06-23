@@ -1,8 +1,8 @@
 import { ofetch } from "ofetch";
 import { useAuthStore } from "@/stores/auth";
 
-// const backendUrl = "http://localhost:3001"
-const backendUrl = "https://api-myngo.kipidap.my";
+// Get backend URL from Vite env, fallback to default
+const backendUrl = import.meta.env.VITE_API_URL || "https://api.myngo.my";
 
 // API configuration constants
 const apiTimeout = 30000; // 30 seconds
