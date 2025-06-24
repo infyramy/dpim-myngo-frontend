@@ -154,7 +154,10 @@ async function resendOtp() {
   if (resendCountdown.value > 0) return;
 
   try {
-    await authStore.sendOtp(email.value);
+    await apiFetching().post("/auth/send-otp", {
+      email: email.value,
+    });
+
     toast.success("Verification code resent");
     startResendCountdown();
   } catch (error: any) {

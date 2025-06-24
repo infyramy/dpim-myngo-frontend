@@ -46,8 +46,12 @@
                 @click="performSearch"
                 :disabled="isLoading"
               >
-                <span class="hidden sm:inline">{{ isLoading ? "Searching..." : "Search" }}</span>
-                <span class="sm:hidden">{{ isLoading ? "..." : "Search" }}</span>
+                <span class="hidden sm:inline">{{
+                  isLoading ? "Searching..." : "Search"
+                }}</span>
+                <span class="sm:hidden">{{
+                  isLoading ? "..." : "Search"
+                }}</span>
               </Button>
             </div>
 
@@ -201,18 +205,27 @@
                 <div
                   class="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-6 pt-4 border-t gap-3 sm:gap-2"
                 >
-                  <div class="text-sm text-muted-foreground text-center sm:text-left">
+                  <div
+                    class="text-sm text-muted-foreground text-center sm:text-left"
+                  >
                     {{ activeFilters.length }} filter{{
                       activeFilters.length !== 1 ? "s" : ""
                     }}
                     applied
                   </div>
                   <div class="flex flex-col sm:flex-row gap-2">
-                    <Button variant="outline" @click="resetFilters" class="w-full sm:w-auto">
+                    <Button
+                      variant="outline"
+                      @click="resetFilters"
+                      class="w-full sm:w-auto"
+                    >
                       <RefreshCcwIcon class="h-4 w-4 mr-2" />
                       Reset All
                     </Button>
-                    <Button @click="showAdvancedFilters = false" class="w-full sm:w-auto">
+                    <Button
+                      @click="showAdvancedFilters = false"
+                      class="w-full sm:w-auto"
+                    >
                       Apply Filters
                     </Button>
                   </div>
@@ -226,7 +239,9 @@
       <!-- Active Filters Tags -->
       <div v-if="activeFilters.length > 0" class="mt-4 px-4 sm:px-0">
         <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2">
-          <p class="text-sm font-medium text-muted-foreground whitespace-nowrap">
+          <p
+            class="text-sm font-medium text-muted-foreground whitespace-nowrap"
+          >
             Active filters:
           </p>
           <div class="flex items-center gap-2 flex-wrap">
@@ -267,17 +282,19 @@
 
     <!-- Search Results -->
     <div v-if="hasSearched" class="px-4 sm:px-0">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+      <div
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3"
+      >
         <div>
-          <h2 class="text-lg sm:text-xl font-semibold">
-            Search Results
-          </h2>
+          <h2 class="text-lg sm:text-xl font-semibold">Search Results</h2>
           <span class="text-sm sm:text-base font-normal text-muted-foreground">
             ({{ totalResults }} results found)
           </span>
         </div>
         <div class="flex items-center gap-2">
-          <p class="text-sm text-muted-foreground whitespace-nowrap">Sort by:</p>
+          <p class="text-sm text-muted-foreground whitespace-nowrap">
+            Sort by:
+          </p>
           <Select v-model="sortBy" @update:modelValue="performSearch">
             <SelectTrigger class="w-[140px] sm:w-[180px] h-9">
               <SelectValue />
@@ -325,9 +342,17 @@
               class="aspect-video w-full overflow-hidden bg-muted rounded-t-lg relative"
             >
               <img
-                :src="product.image"
+                v-if="product.images && product.images.length > 0"
+                :src="`${backendUrl}${product.images?.[0]}`"
                 :alt="product.name"
                 class="h-full w-full object-cover"
+                loading="lazy"
+              />
+              <img
+                v-else
+                src="@/assets/logo/dpim-logo-1.png"
+                :alt="product.name"
+                class="h-auto w-auto object-fill"
                 loading="lazy"
               />
               <div class="absolute top-2 right-2">
@@ -345,7 +370,9 @@
             <!-- Product Info -->
             <div class="p-3 sm:p-4 space-y-3">
               <div>
-                <h3 class="font-semibold text-base sm:text-lg line-clamp-2 mb-1">
+                <h3
+                  class="font-semibold text-base sm:text-lg line-clamp-2 mb-1"
+                >
                   {{ product.name }}
                 </h3>
                 <!-- <Badge variant="outline" class="text-xs">{{
@@ -418,11 +445,21 @@
         >
           <SearchIcon class="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
         </div>
-        <h3 class="text-base sm:text-lg font-semibold mb-2">No results found</h3>
-        <p class="text-sm sm:text-base text-muted-foreground mb-4 max-w-md mx-auto">
+        <h3 class="text-base sm:text-lg font-semibold mb-2">
+          No results found
+        </h3>
+        <p
+          class="text-sm sm:text-base text-muted-foreground mb-4 max-w-md mx-auto"
+        >
           Try adjusting your search criteria or reset filters
         </p>
-        <Button variant="outline" @click="resetFilters" class="w-full sm:w-auto"> Reset Filters </Button>
+        <Button
+          variant="outline"
+          @click="resetFilters"
+          class="w-full sm:w-auto"
+        >
+          Reset Filters
+        </Button>
       </div>
 
       <!-- Pagination -->
@@ -430,7 +467,9 @@
         v-if="paginatedResults.length > 0"
         class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
       >
-        <p class="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
+        <p
+          class="text-xs sm:text-sm text-muted-foreground text-center sm:text-left"
+        >
           Showing {{ startIndex + 1 }}-{{ Math.min(endIndex, totalResults) }} of
           {{ totalResults }} results
         </p>
@@ -476,8 +515,12 @@
       >
         <SearchIcon class="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
       </div>
-      <h3 class="text-base sm:text-lg font-semibold mb-2">Ready to discover products?</h3>
-      <p class="text-sm sm:text-base text-muted-foreground mb-4 max-w-md mx-auto">
+      <h3 class="text-base sm:text-lg font-semibold mb-2">
+        Ready to discover products?
+      </h3>
+      <p
+        class="text-sm sm:text-base text-muted-foreground mb-4 max-w-md mx-auto"
+      >
         Enter your search terms above to find products and services from DPIM
         members nationwide
       </p>
@@ -485,33 +528,173 @@
 
     <!-- Product Detail Dialog -->
     <Dialog v-model:open="showProductDetailDialog">
-      <DialogContent class="sm:max-w-[900px] max-h-[90vh] w-[95vw] sm:w-full flex flex-col p-0 overflow-hidden">
+      <DialogContent
+        class="sm:max-w-[900px] max-h-[90vh] w-[95vw] sm:w-full flex flex-col p-0 overflow-hidden"
+      >
         <!-- Fixed Header -->
         <DialogHeader class="px-4 sm:px-6 py-3 sm:py-4 border-b flex-shrink-0">
-          <DialogTitle class="text-base sm:text-lg">Product Details</DialogTitle>
+          <DialogTitle class="text-base sm:text-lg"
+            >Product Details</DialogTitle
+          >
           <DialogDescription class="text-sm">
             Detailed information about the product and business
           </DialogDescription>
         </DialogHeader>
 
         <!-- Scrollable Content -->
-        <div class="flex-1 overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-3 sm:py-4">
+        <div
+          class="flex-1 overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-3 sm:py-4"
+        >
           <div v-if="selectedProduct" class="grid gap-4 sm:gap-6 min-w-0">
-            <!-- Product Image -->
-            <div
-              class="aspect-video w-full overflow-hidden bg-muted rounded-lg"
-            >
-              <img
-                :src="selectedProduct.image"
-                :alt="selectedProduct.name"
-                class="h-full w-full object-cover"
-              />
+            <!-- Product Images -->
+            <div class="w-full">
+              <!-- Single Image -->
+              <div
+                v-if="
+                  !selectedProduct.images || selectedProduct.images.length <= 1
+                "
+                class="aspect-video w-full overflow-hidden bg-muted rounded-lg shadow-lg"
+              >
+                <img
+                  v-if="
+                    selectedProduct.images && selectedProduct.images.length > 0
+                  "
+                  :src="`${backendUrl}${selectedProduct.images?.[0]}`"
+                  :alt="selectedProduct.name"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+                <img
+                  v-else
+                  src="@/assets/logo/dpim-logo-1.png"
+                  :alt="selectedProduct.name"
+                  class="h-auto w-auto object-fill"
+                  loading="lazy"
+                />
+              </div>
+
+              <!-- Multiple Images Carousel -->
+              <div v-else class="w-full space-y-4">
+                <!-- Main Carousel -->
+                <div class="relative">
+                  <Carousel class="w-full" v-model="currentImageIndex">
+                    <CarouselContent>
+                      <CarouselItem
+                        v-for="(image, index) in selectedProduct.images"
+                        :key="index"
+                      >
+                        <div
+                          class="aspect-video w-full overflow-hidden bg-muted rounded-lg shadow-lg relative group"
+                        >
+                          <img
+                            :src="`${backendUrl}${image}`"
+                            :alt="`${selectedProduct.name} - Image ${
+                              index + 1
+                            }`"
+                            class="h-full w-full object-cover transition-transform duration-300"
+                            loading="lazy"
+                          />
+                          <!-- Image overlay with info -->
+                          <div
+                            class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          />
+                          <!-- Full screen button -->
+                          <button
+                            @click="openImageFullscreen(image)"
+                            class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                            type="button"
+                          >
+                            <svg
+                              class="h-4 w-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </CarouselItem>
+                    </CarouselContent>
+                    <CarouselPrevious
+                      class="left-3 bg-white/90 hover:bg-white shadow-lg"
+                    />
+                    <CarouselNext
+                      class="right-3 bg-white/90 hover:bg-white shadow-lg"
+                    />
+                  </Carousel>
+
+                  <!-- Image Counter and Navigation -->
+                  <div
+                    class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-black/70 text-white text-sm px-3 py-1 rounded-full"
+                  >
+                    {{ (currentImageIndex || 0) + 1 }} /
+                    {{ selectedProduct.images.length }}
+                  </div>
+                </div>
+
+                <!-- Thumbnail Navigation (for 3+ images) -->
+                <div
+                  v-if="selectedProduct.images.length > 2"
+                  class="flex gap-2 overflow-x-auto pb-2"
+                >
+                  <button
+                    v-for="(image, index) in selectedProduct.images"
+                    :key="`thumb-${index}`"
+                    @click="setCurrentImage(index)"
+                    :class="[
+                      'flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all duration-200',
+                      (currentImageIndex || 0) === index
+                        ? 'border-primary shadow-lg scale-105'
+                        : 'border-transparent hover:border-gray-300 opacity-70 hover:opacity-100',
+                    ]"
+                    type="button"
+                  >
+                    <img
+                      :src="`${backendUrl}${image}`"
+                      :alt="`${selectedProduct.name} - Thumbnail ${index + 1}`"
+                      class="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  </button>
+                </div>
+
+                <!-- Image Indicators (for 2-3 images) -->
+                <div
+                  v-else-if="selectedProduct.images.length > 1"
+                  class="flex justify-center gap-2"
+                >
+                  <button
+                    v-for="(_, index) in selectedProduct.images"
+                    :key="`indicator-${index}`"
+                    @click="setCurrentImage(index)"
+                    :class="[
+                      'w-2 h-2 rounded-full transition-all duration-200',
+                      (currentImageIndex || 0) === index
+                        ? 'bg-primary scale-125'
+                        : 'bg-gray-300 hover:bg-gray-400',
+                    ]"
+                    type="button"
+                  />
+                </div>
+              </div>
             </div>
 
             <!-- Product Info -->
             <div>
-              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-2">
-                <h2 class="text-xl sm:text-2xl font-bold line-clamp-2 sm:line-clamp-1">{{ selectedProduct.name }}</h2>
+              <div
+                class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-2"
+              >
+                <h2
+                  class="text-xl sm:text-2xl font-bold line-clamp-2 sm:line-clamp-1"
+                >
+                  {{ selectedProduct.name }}
+                </h2>
                 <div class="flex gap-2 flex-wrap">
                   <Badge variant="outline" class="capitalize text-xs">{{
                     selectedProduct.category
@@ -533,7 +716,9 @@
             <!-- Product Description -->
             <div class="min-w-0">
               <h3 class="font-semibold mb-3">Product Description</h3>
-              <p class="text-sm text-muted-foreground leading-relaxed break-words">
+              <p
+                class="text-sm text-muted-foreground leading-relaxed break-words"
+              >
                 {{ selectedProduct.description }}
               </p>
 
@@ -546,7 +731,9 @@
                     :key="feature"
                     class="flex items-start gap-2 min-w-0"
                   >
-                    <div class="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                    <div
+                      class="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"
+                    ></div>
                     <span class="break-words">{{ feature }}</span>
                   </li>
                 </ul>
@@ -604,7 +791,9 @@
 
             <!-- Business Information -->
             <div class="min-w-0">
-              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+              <div
+                class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2"
+              >
                 <h3 class="font-semibold">Business Information</h3>
                 <div class="flex gap-2 flex-wrap">
                   <Badge
@@ -621,7 +810,9 @@
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 min-w-0">
+              <div
+                class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 min-w-0"
+              >
                 <!-- Left Column -->
                 <div class="space-y-4 min-w-0">
                   <!-- Business Name & Type -->
@@ -654,7 +845,9 @@
 
                   <!-- Address -->
                   <div class="flex items-start gap-3 min-w-0">
-                    <MapPinIcon class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <MapPinIcon
+                      class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0"
+                    />
                     <div class="min-w-0 flex-1">
                       <p class="text-sm break-words">
                         {{
@@ -673,7 +866,9 @@
                     "
                     class="flex items-center gap-3 min-w-0"
                   >
-                    <PhoneIcon class="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <PhoneIcon
+                      class="h-5 w-5 text-muted-foreground flex-shrink-0"
+                    />
                     <p class="text-sm break-words">
                       {{
                         selectedProduct.business?.phone ||
@@ -689,20 +884,23 @@
                     "
                     class="flex items-start gap-3 min-w-0"
                   >
-                    <GlobeIcon class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <GlobeIcon
+                      class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0"
+                    />
                     <div class="min-w-0 flex-1">
                       <a
-                        :href="
+                        v-if="
                           selectedProduct.business?.url ||
                           selectedProduct.contact?.website
+                        "
+                        :href="
+                          selectedProduct.business?.url ||
+                          selectedProduct.contact?.website ||
+                          '#'
                         "
                         target="_blank"
                         rel="noopener noreferrer"
                         class="text-sm text-primary hover:underline break-all"
-                        :title="
-                          selectedProduct.business?.url ||
-                          selectedProduct.contact?.website
-                        "
                       >
                         {{
                           selectedProduct.business?.url ||
@@ -720,7 +918,9 @@
                     v-if="selectedProduct.business?.sector"
                     class="flex items-start gap-3 min-w-0"
                   >
-                    <TagIcon class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <TagIcon
+                      class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0"
+                    />
                     <div class="min-w-0 flex-1">
                       <p class="text-sm font-medium">Business Sector</p>
                       <p class="text-sm text-muted-foreground break-words">
@@ -738,7 +938,9 @@
                     v-if="selectedProduct.business?.category"
                     class="flex items-start gap-3 min-w-0"
                   >
-                    <BuildingIcon class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <BuildingIcon
+                      class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0"
+                    />
                     <div class="min-w-0 flex-1">
                       <p class="text-sm font-medium">Business Category</p>
                       <p class="text-sm text-muted-foreground break-words">
@@ -759,7 +961,9 @@
                     "
                     class="flex items-start gap-3 min-w-0"
                   >
-                    <ShieldCheckIcon class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <ShieldCheckIcon
+                      class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0"
+                    />
                     <div class="min-w-0 flex-1">
                       <p class="text-sm font-medium">MOF Registration</p>
                       <p class="text-sm text-muted-foreground break-words">
@@ -773,7 +977,9 @@
                     v-if="selectedProduct.business?.createdAt"
                     class="flex items-start gap-3 min-w-0"
                   >
-                    <CalendarIcon class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <CalendarIcon
+                      class="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0"
+                    />
                     <div class="min-w-0 flex-1">
                       <p class="text-sm font-medium">Registered</p>
                       <p class="text-sm text-muted-foreground break-words">
@@ -788,8 +994,14 @@
         </div>
 
         <!-- Fixed Footer -->
-        <DialogFooter class="px-4 sm:px-6 py-3 sm:py-4 border-t gap-2 flex-col sm:flex-row flex-shrink-0 min-w-0">
-          <Button variant="outline" @click="showProductDetailDialog = false" class="w-full sm:w-auto order-last sm:order-first min-w-0">
+        <DialogFooter
+          class="px-4 sm:px-6 py-3 sm:py-4 border-t gap-2 flex-col sm:flex-row flex-shrink-0 min-w-0"
+        >
+          <Button
+            variant="outline"
+            @click="showProductDetailDialog = false"
+            class="w-full sm:w-auto order-last sm:order-first min-w-0"
+          >
             Close
           </Button>
           <Button
@@ -801,11 +1013,49 @@
             <GlobeIcon class="h-4 w-4 flex-shrink-0" />
             <span class="truncate">Visit Product</span>
           </Button>
-          <Button class="flex items-center gap-2 w-full sm:w-auto min-w-0" @click="contactBusiness">
+          <Button
+            class="flex items-center gap-2 w-full sm:w-auto min-w-0"
+            @click="contactBusiness"
+          >
             <MailIcon class="h-4 w-4 flex-shrink-0" />
             <span class="truncate">Contact Business</span>
           </Button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    <!-- Fullscreen Image Dialog -->
+    <Dialog v-model:open="showImageFullscreen">
+      <DialogContent
+        class="max-w-[95vw] max-h-[95vh] p-0 bg-transparent border-0 shadow-none"
+      >
+        <div class="relative w-full h-full flex items-center justify-center">
+          <img
+            :src="fullscreenImageUrl"
+            :alt="selectedProduct?.name || 'Product image'"
+            class="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+            @click="closeImageFullscreen"
+          />
+          <button
+            @click="closeImageFullscreen"
+            class="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors duration-200"
+            type="button"
+          >
+            <svg
+              class="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
       </DialogContent>
     </Dialog>
   </div>
@@ -861,6 +1111,13 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 import { apiFetching } from "@/services/api-fetching";
 import { toast } from "vue-sonner";
@@ -898,6 +1155,7 @@ interface Product {
   location?: string;
   fullAddress?: string;
   image: string;
+  images?: string[];
   rating?: number;
   reviewCount?: number;
   isVerified?: boolean;
@@ -939,9 +1197,17 @@ const searchInputRef = ref<HTMLInputElement>();
 const searchContainerRef = ref<HTMLDivElement>();
 const hasSearched = ref(false);
 
+// Image carousel state
+const currentImageIndex = ref(0);
+const showImageFullscreen = ref(false);
+const fullscreenImageUrl = ref("");
+
 // Data state
 const allProducts = ref<Product[]>([]);
 const allTags = ref<Tag[]>([]);
+
+// const backendUrl = "http://localhost:3001";
+const backendUrl = "https://api.myngo.my";
 
 // Filters
 const filters = ref({
@@ -1249,8 +1515,24 @@ const copyToClipboard = async (text: string) => {
   }
 };
 
+// Image carousel functions
+const setCurrentImage = (index: number) => {
+  currentImageIndex.value = index;
+};
+
+const openImageFullscreen = (imageUrl: string) => {
+  fullscreenImageUrl.value = imageUrl;
+  showImageFullscreen.value = true;
+};
+
+const closeImageFullscreen = () => {
+  showImageFullscreen.value = false;
+  fullscreenImageUrl.value = "";
+};
+
 // Helper functions for business labels
-const getBusinessTypeLabel = (type: string): string => {
+const getBusinessTypeLabel = (type: string | undefined): string => {
+  if (!type) return "Unknown";
   const types: { [key: string]: string } = {
     "sole-proprietorship": "Sole Proprietorship",
     partnership: "Partnership",
@@ -1330,6 +1612,17 @@ const handleClickOutside = (event: Event) => {
     showSuggestions.value = false;
   }
 };
+
+// Watchers
+import { watch } from "vue";
+
+// Reset image index when product changes
+watch(
+  () => selectedProduct.value,
+  () => {
+    currentImageIndex.value = 0;
+  }
+);
 
 // Lifecycle
 onMounted(async () => {

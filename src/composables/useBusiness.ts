@@ -74,8 +74,8 @@ export function useBusiness() {
 
     // Optional URL validation
     if (formData.url && formData.url.trim()) {
-      const urlPattern = /^https?:\/\/.+\..+/;
-      if (!urlPattern.test(formData.url)) {
+      const urlPattern = /^https?:\/\/.+/;
+      if (!urlPattern.test(formData.url.trim())) {
         errors.url = "Invalid URL format";
       }
     }
@@ -138,7 +138,7 @@ export function useBusiness() {
         category: formData.category as any,
         mofRegistration: formData.mofRegistration,
         mofRegistrationNumber: formData.mofRegistrationNumber?.trim() || "",
-        ...(formData.url?.trim() ? { url: formData.url.trim() } : {}),
+        ...(formData.url ? { url: formData.url.trim() } : {}),
         createdAt: new Date(),
       };
 

@@ -39,7 +39,7 @@ export interface CreateBusinessRequest {
   category: BusinessCategory;
   mofRegistered: boolean;
   mofRegistrationNumber?: string;
-  url?: string | undefined;
+  images?: File[];
 }
 
 export interface UpdateBusinessRequest extends Partial<CreateBusinessRequest> {
