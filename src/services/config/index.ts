@@ -99,7 +99,7 @@ const loadConfigFromEnv = (): Partial<AppConfig> => {
       url: getEnvVar('VITE_APP_URL') || defaultConfig.app.url,
     },
     api: {
-      url: getEnvVar('VITE_BACKEND_URL') || defaultConfig.api.url,
+      url: getEnvVar('VITE_API_URL') || defaultConfig.api.url,
       timeout: Number(getEnvVar('VITE_API_TIMEOUT')) || defaultConfig.api.timeout,
       retries: Number(getEnvVar('VITE_API_RETRIES')) || defaultConfig.api.retries,
     },

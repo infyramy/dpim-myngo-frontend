@@ -6,7 +6,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - VITE_BACKEND_URL=${VITE_BACKEND_URL:-https://your-backend-api.com}
+      - VITE_API_URL=${VITE_API_URL:-https://your-backend-api.com}
       - VITE_APP_NAME=${VITE_APP_NAME:-myNGO}
       - VITE_ENVIRONMENT=production
       - VITE_ENABLE_ANALYTICS=${VITE_ENABLE_ANALYTICS:-false}
@@ -34,6 +34,6 @@ services:
       - /app/node_modules
     command: pnpm run dev
     environment:
-      - VITE_BACKEND_URL=${VITE_BACKEND_URL:-http://localhost:3001}
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3001}
       - VITE_ENVIRONMENT=development
       - VITE_ENABLE_DEV_TOOLS=true 
