@@ -350,7 +350,7 @@
               />
               <img
                 v-else
-                src="@/assets/logo/dpim-logo-1.png"
+                src="@/assets/no-image.jpeg"
                 :alt="product.name"
                 class="h-auto w-auto object-fill"
                 loading="lazy"
@@ -566,7 +566,7 @@
                 />
                 <img
                   v-else
-                  src="@/assets/logo/dpim-logo-1.png"
+                  src="@/assets/no-image.jpeg"
                   :alt="selectedProduct.name"
                   class="h-auto w-auto object-fill"
                   loading="lazy"
