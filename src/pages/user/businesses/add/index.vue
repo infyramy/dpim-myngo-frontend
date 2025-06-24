@@ -211,7 +211,8 @@
               </Label>
               <Input
                 id="mofRegistrationNumber"
-                v-model="formData.mofRegistrationNumber"
+                :model-value="formData.mofRegistrationNumber || ''"
+                @update:model-value="(value) => (formData.mofRegistrationNumber = String(value))"
                 placeholder="MOF registration number"
                 :class="{ 'border-red-500': formErrors.mofRegistrationNumber }"
                 class="mt-1"
@@ -225,22 +226,17 @@
               </p>
             </div>
 
-            <!-- Business URL -->
+            <!-- Business Images -->
             <div class="md:col-span-2">
-              <Label for="businessUrl" class="text-sm font-medium">
-                Business Website (Optional)
-              </Label>
-              <Input
-                id="businessUrl"
-                :model-value="formData.url || ''"
-                @update:model-value="(value) => (formData.url = String(value))"
-                placeholder="https://example.com (if any)"
-                :class="{ 'border-red-500': formErrors.url }"
-                class="mt-1"
-                type="url"
-              />
-              <p v-if="formErrors.url" class="text-red-500 text-xs mt-1">
-                {{ formErrors.url }}
+                              <ImageUpload
+                  :model-value="formData.images || []"
+                  @update:model-value="(files: File[]) => (formData.images = files)"
+                  :max-files="3"
+                  :max-file-size="5 * 1024 * 1024"
+                  @error="(error: string) => formErrors.images = error"
+                />
+              <p v-if="formErrors.images" class="text-red-500 text-xs mt-1">
+                {{ formErrors.images }}
               </p>
             </div>
           </div>
@@ -295,6 +291,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { ArrowLeftIcon } from "lucide-vue-next";
 import { toast } from "vue-sonner";
 
@@ -351,9 +348,33 @@ const handleSubmit = async () => {
   isSubmitting.value = true;
 
   try {
-    const response = await apiFetching().post(
+    // Create FormData for file upload
+    const formDataObj = new FormData();
+    
+    // Add form fields
+    formDataObj.append('name', formData.value.name);
+    formDataObj.append('ssm', formData.value.ssm);
+    formDataObj.append('phone', formData.value.phone);
+    formDataObj.append('address', formData.value.address);
+    formDataObj.append('type', formData.value.type);
+    formDataObj.append('sector', formData.value.sector);
+    formDataObj.append('category', formData.value.category);
+    formDataObj.append('mofRegistration', formData.value.mofRegistration.toString());
+    
+    if (formData.value.mofRegistrationNumber) {
+      formDataObj.append('mofRegistrationNumber', formData.value.mofRegistrationNumber);
+    }
+    
+    // Add images
+    if (formData.value.images && formData.value.images.length > 0) {
+      formData.value.images.forEach((file, index) => {
+        formDataObj.append(`images`, file);
+      });
+    }
+
+    const response = await apiFetching().postFormData(
       "/businesses",
-      formData.value,
+      formDataObj,
       true
     );
     setTimeout(() => {

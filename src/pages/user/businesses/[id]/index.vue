@@ -237,7 +237,10 @@
                 </Label>
                 <Input
                   id="mofRegistrationNumber"
-                  v-model="formData.mofRegistrationNumber"
+                  :model-value="formData.mofRegistrationNumber || ''"
+                  @update:model-value="
+                    (value) => (formData.mofRegistrationNumber = String(value))
+                  "
                   placeholder="MOF registration number"
                   :class="{
                     'border-red-500': formErrors.mofRegistrationNumber,
@@ -253,24 +256,24 @@
                 </p>
               </div>
 
-              <!-- Business URL -->
+              <!-- Business Images -->
               <div class="md:col-span-2">
-                <Label for="businessUrl" class="text-sm font-medium">
-                  Business Website (Optional)
+                <Label class="text-sm font-medium">
+                  Business Images (Optional)
                 </Label>
-                <Input
-                  id="businessUrl"
-                  :model-value="formData.url || ''"
-                  @update:model-value="
-                    (value) => (formData.url = String(value))
-                  "
-                  placeholder="https://example.com (if any)"
-                  :class="{ 'border-red-500': formErrors.url }"
-                  class="mt-1"
-                  type="url"
+                <p class="text-xs text-muted-foreground mb-2">
+                  Upload up to 3 images of your business (Max 5MB each)
+                </p>
+                <ImageUpload
+                  :model-value="formData.images || []"
+                  @update:model-value="(files) => (formData.images = files)"
+                  :max-files="3"
+                  :max-file-size="5 * 1024 * 1024"
+                  accept=".png,.jpg,.jpeg,.gif"
+                  @error="(message) => toast.error(message)"
                 />
-                <p v-if="formErrors.url" class="text-red-500 text-xs mt-1">
-                  {{ formErrors.url }}
+                <p v-if="formErrors.images" class="text-red-500 text-xs mt-1">
+                  {{ formErrors.images }}
                 </p>
               </div>
             </div>
@@ -326,6 +329,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { ArrowLeftIcon } from "lucide-vue-next";
 import { toast } from "vue-sonner";
 
@@ -338,6 +342,7 @@ import type {
 } from "@/types/business";
 
 import { apiFetching } from "@/services/api-fetching";
+import { getBusinessImageUrl } from "@/utils/imageUrl";
 
 // Router
 const router = useRouter();
@@ -367,7 +372,7 @@ const formData = ref<BusinessFormData>({
   category: "",
   mofRegistration: false,
   mofRegistrationNumber: "",
-  url: "",
+  images: [],
 });
 const formErrors = ref<BusinessValidationErrors>({});
 
@@ -390,7 +395,21 @@ const loadBusiness = async () => {
     console.log("response.data: ", response.data.business);
 
     originalBusiness.value = response.data.business;
-    formData.value = businessToFormData(response.data.business);
+    
+    // Convert business data to form data and ensure image URLs are full URLs
+    const businessFormData = businessToFormData(response.data.business);
+    
+    // Convert relative image paths to full URLs for display
+    if (businessFormData.images && businessFormData.images.length > 0) {
+      businessFormData.images = businessFormData.images.map(img => {
+        if (typeof img === 'string' && !img.startsWith('http')) {
+          return getBusinessImageUrl(img);
+        }
+        return img;
+      });
+    }
+    
+    formData.value = businessFormData;
   } catch (err: any) {
     error.value = err.message || "Failed to load business data";
   } finally {
@@ -420,11 +439,63 @@ const handleSubmit = async () => {
   }
 
   try {
-    const response = await apiFetching().put(
-      `/businesses/${businessId}`,
-      formData.value,
-      true
-    );
+    let response;
+    
+    // Check if there are new file uploads (File objects) or just existing URLs
+    const hasNewFiles = formData.value.images?.some(img => img instanceof File);
+    
+    if (hasNewFiles) {
+      // Use FormData for file uploads
+      const submitData = new FormData();
+      
+      // Add all form fields
+      submitData.append('name', formData.value.name);
+      submitData.append('ssm', formData.value.ssm);
+      submitData.append('address', formData.value.address);
+      submitData.append('phone', formData.value.phone);
+      submitData.append('type', formData.value.type);
+      submitData.append('sector', formData.value.sector);
+      submitData.append('category', formData.value.category);
+      submitData.append('mofRegistration', formData.value.mofRegistration.toString());
+      
+      if (formData.value.mofRegistrationNumber) {
+        submitData.append('mofRegistrationNumber', formData.value.mofRegistrationNumber);
+      }
+      
+      // Add new images (File objects only)
+      if (formData.value.images) {
+        formData.value.images.forEach((item, index) => {
+          if (item instanceof File) {
+            submitData.append('images', item);
+          }
+        });
+        
+        // Add existing image URLs separately
+        const existingImages = formData.value.images.filter(img => typeof img === 'string');
+        if (existingImages.length > 0) {
+          submitData.append('existingImages', JSON.stringify(existingImages));
+        }
+      }
+      
+      response = await apiFetching().putFormData(
+        `/businesses/${businessId}`,
+        submitData,
+        true
+      );
+    } else {
+      // Use regular JSON for requests without new files
+      // Convert File|string[] to string[] for JSON requests
+      const jsonFormData = {
+        ...formData.value,
+        images: formData.value.images?.filter(img => typeof img === 'string') || []
+      };
+      
+      response = await apiFetching().put(
+        `/businesses/${businessId}`,
+        jsonFormData,
+        true
+      );
+    }
 
     setTimeout(() => {
       toast.success(response.message);
@@ -448,7 +519,7 @@ const getFieldId = (errorKey: string): string => {
     sector: "businessSector",
     category: "businessCategory",
     mofRegistrationNumber: "mofRegistrationNumber",
-    url: "businessUrl",
+    images: "businessImages",
   };
   return fieldIdMap[errorKey] || errorKey;
 };

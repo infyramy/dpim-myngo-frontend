@@ -325,18 +325,13 @@
                     MOF: {{ business.mofRegistrationNumber }}
                   </span>
                 </div>
-                <div v-if="business.url" class="flex items-center gap-2">
-                  <GlobeIcon
+                <div v-if="business.images && business.images.length > 0" class="flex items-center gap-2">
+                  <ImageIcon
                     class="h-3 sm:h-4 w-3 sm:w-4 text-muted-foreground flex-shrink-0"
                   />
-                  <a
-                    :href="business.url"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-primary hover:underline text-xs sm:text-sm truncate"
-                  >
-                    {{ business.url }}
-                  </a>
+                  <span class="text-muted-foreground text-xs sm:text-sm">
+                    {{ business.images.length }} image{{ business.images.length > 1 ? 's' : '' }}
+                  </span>
                 </div>
               </div>
 
@@ -534,20 +529,26 @@
                 </div>
 
                 <div
-                  v-if="selectedBusiness.url"
-                  class="flex items-center gap-3"
+                  v-if="selectedBusiness.images && selectedBusiness.images.length > 0"
+                  class="flex items-start gap-3"
                 >
-                  <GlobeIcon class="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p class="font-medium">Website</p>
-                    <a
-                      :href="selectedBusiness.url"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="text-sm text-primary hover:underline"
-                    >
-                      {{ selectedBusiness.url }}
-                    </a>
+                  <ImageIcon class="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div class="flex-1">
+                    <p class="font-medium mb-2">Business Images</p>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      <div
+                        v-for="(image, index) in selectedBusiness.images"
+                        :key="index"
+                        class="aspect-video bg-muted rounded-md overflow-hidden"
+                      >
+                        <img
+                          :src="getBusinessImageUrl(image)"
+                          :alt="`Business image ${index + 1}`"
+                          class="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
+
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -689,7 +690,7 @@ import {
   MapPinIcon,
   PhoneIcon,
   TagIcon,
-  GlobeIcon,
+  ImageIcon,
   SearchIcon,
   RefreshCcwIcon,
   EyeIcon,
@@ -710,6 +711,7 @@ import type { Business } from "@/types/business";
 
 import { apiFetching } from "@/services/api-fetching";
 import { toast } from "vue-sonner";
+import { getBusinessImageUrl } from "@/utils/imageUrl";
 
 // Router
 const router = useRouter();
@@ -721,6 +723,7 @@ const router = useRouter();
 const isLoading = ref(false);
 const isSubmitting = ref(false);
 
+const BUSINESS_TYPE_OPTIONS = ref<any[]>([]);
 const BUSINESS_SECTOR_OPTIONS = ref<any[]>([]);
 const BUSINESS_CATEGORY_OPTIONS = ref<any[]>([]);
 
@@ -846,7 +849,7 @@ const activeFiltersCount = computed(() => {
 // Utility functions for labels
 const getBusinessTypeLabel = (type: string) => {
   return (
-    BUSINESS_TYPE_OPTIONS.value.find((option) => option.value === type)
+    BUSINESS_TYPE_OPTIONS.value.find((option: any) => option.value === type)
       ?.title || type
   );
 };
@@ -927,6 +930,11 @@ const handleDeleteBusiness = async () => {
 
 async function fetchLookup() {
   try {
+    const bt = await apiFetching().get(`/lookup?lookup_group=business_type`);
+    console.log("response.data: ", bt.data.lookup_data);
+
+    BUSINESS_TYPE_OPTIONS.value = bt.data.lookup_data;
+
     const bs = await apiFetching().get(`/lookup?lookup_group=business_sector`);
     console.log("response.data: ", bs.data.lookup_data);
 

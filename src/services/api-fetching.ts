@@ -2,7 +2,7 @@ import { ofetch } from "ofetch";
 import { useAuthStore } from "@/stores/auth";
 
 // const backendUrl = "http://localhost:3001"
-const backendUrl = "https://api-myngo.kipidap.my";
+const backendUrl = "https://api.myngo.my";
 
 // API configuration constants
 const apiTimeout = 30000; // 30 seconds
@@ -143,6 +143,29 @@ export const apiFetching = () => {
       }
     },
 
+    postFormData: async (url: string, formData: FormData, auth: boolean = false) => {
+      console.log("API: POST FormData: ", url, formData);
+
+      try {
+        const response = await ofetch(`${backendUrl}${url}`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            // Don't set Content-Type for FormData, let browser set it with boundary
+            ...getAuthHeaders(),
+          },
+          credentials: "include",
+        });
+
+        console.log("API: POST FormData: Response: ", response);
+        handleResponse(response);
+        return response;
+      } catch (error: any) {
+        console.error("API: POST FormData: Error: ", error);
+        return handleError(error);
+      }
+    },
+
     put: async (url: string, data: any, auth: boolean = false) => {
       console.log("API: PUT: ", url, data);
 
@@ -162,6 +185,29 @@ export const apiFetching = () => {
         return response;
       } catch (error: any) {
         console.error("API: PUT: Error: ", error);
+        return handleError(error);
+      }
+    },
+
+    putFormData: async (url: string, formData: FormData, auth: boolean = false) => {
+      console.log("API: PUT FormData: ", url, formData);
+
+      try {
+        const response = await ofetch(`${backendUrl}${url}`, {
+          method: "PUT",
+          body: formData,
+          headers: {
+            // Don't set Content-Type for FormData, let browser set it with boundary
+            ...getAuthHeaders(),
+          },
+          credentials: "include",
+        });
+
+        console.log("API: PUT FormData: Response: ", response);
+        handleResponse(response);
+        return response;
+      } catch (error: any) {
+        console.error("API: PUT FormData: Error: ", error);
         return handleError(error);
       }
     },

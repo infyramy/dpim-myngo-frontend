@@ -1,7 +1,9 @@
 <template>
   <div class="space-y-6">
     <!-- Header Section -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 sm:px-0">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 sm:px-0"
+    >
       <div>
         <h1 class="text-2xl sm:text-3xl font-bold">My Products</h1>
         <p class="text-muted-foreground mt-1 text-sm sm:text-base">
@@ -30,7 +32,7 @@
               />
               <Input
                 v-model="searchQuery"
-                placeholder="Search your products, services, or tags..."
+                placeholder="Search products, services, tags, or links..."
                 class="pl-9 w-full"
                 @input="performSearch"
               />
@@ -47,7 +49,11 @@
                     <div class="flex items-center gap-2">
                       <SlidersHorizontalIcon class="h-4 w-4" />
                       Filters
-                      <Badge v-if="activeFiltersCount > 0" variant="secondary" class="text-xs">
+                      <Badge
+                        v-if="activeFiltersCount > 0"
+                        variant="secondary"
+                        class="text-xs"
+                      >
                         {{ activeFiltersCount }}
                       </Badge>
                     </div>
@@ -61,12 +67,17 @@
                   <!-- Mobile Filter Controls -->
                   <div class="grid grid-cols-1 gap-4">
                     <div>
-                      <Label for="productCategoryMobile" class="text-sm">Category</Label>
+                      <Label for="productCategoryMobile" class="text-sm"
+                        >Category</Label
+                      >
                       <Select
                         v-model="filters.category"
                         @update:modelValue="performSearch"
                       >
-                        <SelectTrigger id="productCategoryMobile" class="w-full mt-1 h-10">
+                        <SelectTrigger
+                          id="productCategoryMobile"
+                          class="w-full mt-1 h-10"
+                        >
                           <SelectValue placeholder="All categories" />
                         </SelectTrigger>
                         <SelectContent>
@@ -83,12 +94,17 @@
                     </div>
 
                     <div>
-                      <Label for="statusFilterMobile" class="text-sm">Status</Label>
+                      <Label for="statusFilterMobile" class="text-sm"
+                        >Status</Label
+                      >
                       <Select
                         v-model="filters.status"
                         @update:modelValue="performSearch"
                       >
-                        <SelectTrigger id="statusFilterMobile" class="w-full mt-1 h-10">
+                        <SelectTrigger
+                          id="statusFilterMobile"
+                          class="w-full mt-1 h-10"
+                        >
                           <SelectValue placeholder="All status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -100,12 +116,17 @@
                     </div>
 
                     <div>
-                      <Label for="featuredFilterMobile" class="text-sm">Featured</Label>
+                      <Label for="featuredFilterMobile" class="text-sm"
+                        >Featured</Label
+                      >
                       <Select
                         v-model="filters.featured"
                         @update:modelValue="performSearch"
                       >
-                        <SelectTrigger id="featuredFilterMobile" class="w-full mt-1 h-10">
+                        <SelectTrigger
+                          id="featuredFilterMobile"
+                          class="w-full mt-1 h-10"
+                        >
                           <SelectValue placeholder="All products" />
                         </SelectTrigger>
                         <SelectContent>
@@ -118,8 +139,14 @@
 
                     <div>
                       <Label for="tagFilterMobile" class="text-sm">Tag</Label>
-                      <Select v-model="filters.tag" @update:modelValue="performSearch">
-                        <SelectTrigger id="tagFilterMobile" class="w-full mt-1 h-10">
+                      <Select
+                        v-model="filters.tag"
+                        @update:modelValue="performSearch"
+                      >
+                        <SelectTrigger
+                          id="tagFilterMobile"
+                          class="w-full mt-1 h-10"
+                        >
                           <SelectValue placeholder="All tags" />
                         </SelectTrigger>
                         <SelectContent>
@@ -208,7 +235,10 @@
 
               <div>
                 <Label for="tagFilter" class="text-sm">Tag</Label>
-                <Select v-model="filters.tag" @update:modelValue="performSearch">
+                <Select
+                  v-model="filters.tag"
+                  @update:modelValue="performSearch"
+                >
                   <SelectTrigger id="tagFilter" class="w-full mt-1 h-10">
                     <SelectValue placeholder="All tags" />
                   </SelectTrigger>
@@ -243,15 +273,21 @@
 
     <!-- Products Section -->
     <div class="px-4 sm:px-0">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+      <div
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3"
+      >
         <h2 class="text-lg sm:text-xl font-semibold">
           Your Products
-          <span class="text-sm sm:text-base font-normal text-muted-foreground ml-2">
+          <span
+            class="text-sm sm:text-base font-normal text-muted-foreground ml-2"
+          >
             ({{ totalResults }} products)
           </span>
         </h2>
         <div class="flex items-center gap-2">
-          <p class="text-sm text-muted-foreground whitespace-nowrap">Sort by:</p>
+          <p class="text-sm text-muted-foreground whitespace-nowrap">
+            Sort by:
+          </p>
           <Select v-model="sortBy" @update:modelValue="performSearch">
             <SelectTrigger class="w-[140px] sm:w-[180px] h-9">
               <SelectValue />
@@ -291,9 +327,18 @@
         >
           <AlertCircleIcon class="h-6 w-6 sm:h-8 sm:w-8 text-red-600" />
         </div>
-        <h3 class="text-base sm:text-lg font-semibold mb-2">Error Loading Products</h3>
-        <p class="text-sm sm:text-base text-muted-foreground mb-4 max-w-md mx-auto">{{ error }}</p>
-        <Button @click="fetchProducts" class="flex items-center gap-2 w-full sm:w-auto">
+        <h3 class="text-base sm:text-lg font-semibold mb-2">
+          Error Loading Products
+        </h3>
+        <p
+          class="text-sm sm:text-base text-muted-foreground mb-4 max-w-md mx-auto"
+        >
+          {{ error }}
+        </p>
+        <Button
+          @click="fetchProducts"
+          class="flex items-center gap-2 w-full sm:w-auto"
+        >
           <RefreshCcwIcon class="h-4 w-4" />
           Try Again
         </Button>
@@ -312,10 +357,26 @@
           <CardContent class="p-0">
             <!-- Product Image -->
             <div class="aspect-video w-full overflow-hidden bg-muted relative">
-              <img
-                :src="product.image"
+              <!-- <img
+                :src="product.images?.[0] || '/placeholder-image.jpg'"
                 :alt="product.name"
                 class="h-full w-full object-cover"
+                loading="lazy"
+              /> -->
+
+
+              <img
+                v-if="product.images && product.images.length > 0"
+                :src="`${backendUrl}${product.images?.[0]}`"
+                :alt="product.name"
+                class="h-full w-full object-cover"
+                loading="lazy"
+              />
+              <img
+                v-else
+                src="@/assets/logo/dpim-logo-1.png"
+                :alt="product.name"
+                class="h-auto w-auto object-fill"
                 loading="lazy"
               />
               <div class="absolute top-2 right-2 flex gap-1">
@@ -335,12 +396,21 @@
                   Featured
                 </Badge>
               </div>
+              <!-- Multiple Images Indicator -->
+              <div
+                v-if="product.images && product.images.length > 1"
+                class="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded"
+              >
+                {{ product.images.length }} images
+              </div>
             </div>
 
             <!-- Product Info -->
             <div class="p-3 sm:p-4 space-y-3">
               <div>
-                <h3 class="font-semibold text-base sm:text-lg line-clamp-1 mb-1">
+                <h3
+                  class="font-semibold text-base sm:text-lg line-clamp-1 mb-1"
+                >
                   {{ product.name }}
                 </h3>
                 <div class="flex flex-wrap gap-1 mb-2">
@@ -382,14 +452,41 @@
                 </div>
               </div>
 
-              <div
-                class="flex items-center justify-between text-xs text-muted-foreground"
-              >
-                <span class="hidden sm:inline">Created: {{ formatDate(product.createdAt) }}</span>
-                <div class="flex items-center gap-1">
-                  <CalendarIcon class="h-3 w-3" />
-                  <span class="sm:hidden">{{ formatDate(product.createdAt) }}</span>
-                  <span class="hidden sm:inline">{{ formatDate(product.createdAt) }}</span>
+              <div class="space-y-2">
+                <div
+                  class="flex items-center justify-between text-xs text-muted-foreground"
+                >
+                  <span class="hidden sm:inline"
+                    >Created: {{ formatDate(product.createdAt) }}</span
+                  >
+                  <div class="flex items-center gap-1">
+                    <CalendarIcon class="h-3 w-3" />
+                    <span class="sm:hidden">{{
+                      formatDate(product.createdAt)
+                    }}</span>
+                    <span class="hidden sm:inline">{{
+                      formatDate(product.createdAt)
+                    }}</span>
+                  </div>
+                </div>
+
+                <!-- Product Link Display -->
+                <div v-if="product.link" class="text-xs text-muted-foreground">
+                  <div class="flex items-center gap-1">
+                    <span class="flex-shrink-0">🔗</span>
+                    <a
+                      :href="product.link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-blue-600 hover:text-blue-800 underline truncate"
+                    >
+                      {{
+                        product.link.length > 30
+                          ? product.link.substring(0, 30) + "..."
+                          : product.link
+                      }}
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -439,7 +536,9 @@
         <h3 class="text-base sm:text-lg font-semibold mb-2">
           {{ hasActiveFilters ? "No products found" : "No products yet" }}
         </h3>
-        <p class="text-sm sm:text-base text-muted-foreground mb-4 max-w-md mx-auto">
+        <p
+          class="text-sm sm:text-base text-muted-foreground mb-4 max-w-md mx-auto"
+        >
           {{
             hasActiveFilters
               ? "Try adjusting your search criteria or reset filters"
@@ -471,7 +570,9 @@
         v-if="paginatedResults.length > 0 && totalPages > 1"
         class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
       >
-        <p class="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
+        <p
+          class="text-xs sm:text-sm text-muted-foreground text-center sm:text-left"
+        >
           Showing {{ startIndex + 1 }}-{{ Math.min(endIndex, totalResults) }} of
           {{ totalResults }} products
         </p>
@@ -524,15 +625,152 @@
         <!-- Scrollable Content -->
         <div class="flex-1 overflow-y-auto px-6 py-4">
           <div v-if="selectedProduct" class="grid gap-6">
-            <!-- Product Image -->
-            <div
-              class="aspect-video w-full overflow-hidden bg-muted rounded-lg"
-            >
-              <img
-                :src="selectedProduct.image"
-                :alt="selectedProduct.name"
-                class="h-full w-full object-cover"
-              />
+            <!-- Product Images -->
+            <div class="w-full">
+              <!-- Single Image -->
+              <div
+                v-if="
+                  !selectedProduct.images || selectedProduct.images.length <= 1
+                "
+                class="aspect-video w-full overflow-hidden bg-muted rounded-lg shadow-lg"
+              >
+                <!-- <img
+                  :src="
+                    `${backendUrl}${selectedProduct.images?.[0]}` ||
+                    '/placeholder-image.jpg'
+                  "
+                  :alt="selectedProduct.name"
+                  class="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
+                /> -->
+
+                <img
+                  v-if="
+                    selectedProduct.images && selectedProduct.images.length > 0
+                  "
+                  :src="`${backendUrl}${selectedProduct.images?.[0]}`"
+                  :alt="selectedProduct.name"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+                <img
+                  v-else
+                  src="@/assets/logo/dpim-logo-1.png"
+                  :alt="selectedProduct.name"
+                  class="h-auto w-auto object-fill"
+                  loading="lazy"
+                />
+              </div>
+
+              <!-- Multiple Images Carousel -->
+              <div v-else class="w-full space-y-4">
+                <!-- Main Carousel -->
+                <div class="relative">
+                  <Carousel class="w-full" v-model="currentImageIndex">
+                    <CarouselContent>
+                      <CarouselItem
+                        v-for="(image, index) in selectedProduct.images"
+                        :key="index"
+                      >
+                        <div
+                          class="aspect-video w-full overflow-hidden bg-muted rounded-lg shadow-lg relative group"
+                        >
+                          <img
+                            :src="`${backendUrl}${image}`"
+                            :alt="`${selectedProduct.name} - Image ${
+                              index + 1
+                            }`"
+                            class="h-full w-full object-cover transition-transform duration-300"
+                            loading="lazy"
+                          />
+                          <!-- Image overlay with info -->
+                          <div
+                            class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          />
+                          <!-- Full screen button -->
+                          <button
+                            @click="openImageFullscreen(image)"
+                            class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                            type="button"
+                          >
+                            <svg
+                              class="h-4 w-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </CarouselItem>
+                    </CarouselContent>
+                    <CarouselPrevious
+                      class="left-3 bg-white/90 hover:bg-white shadow-lg"
+                    />
+                    <CarouselNext
+                      class="right-3 bg-white/90 hover:bg-white shadow-lg"
+                    />
+                  </Carousel>
+
+                  <!-- Image Counter and Navigation -->
+                  <div
+                    class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-black/70 text-white text-sm px-3 py-1 rounded-full"
+                  >
+                    {{ (currentImageIndex || 0) + 1 }} /
+                    {{ selectedProduct.images.length }}
+                  </div>
+                </div>
+
+                <!-- Thumbnail Navigation (for 3+ images) -->
+                <div
+                  v-if="selectedProduct.images.length > 2"
+                  class="flex gap-2 overflow-x-auto pb-2"
+                >
+                  <button
+                    v-for="(image, index) in selectedProduct.images"
+                    :key="`thumb-${index}`"
+                    @click="setCurrentImage(index)"
+                    :class="[
+                      'flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all duration-200',
+                      (currentImageIndex || 0) === index
+                        ? 'border-primary shadow-lg scale-105'
+                        : 'border-transparent hover:border-gray-300 opacity-70 hover:opacity-100',
+                    ]"
+                    type="button"
+                  >
+                    <img
+                      :src="`${backendUrl}${image}`"
+                      :alt="`${selectedProduct.name} - Thumbnail ${index + 1}`"
+                      class="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  </button>
+                </div>
+
+                <!-- Image Indicators (for 2-3 images) -->
+                <div
+                  v-else-if="selectedProduct.images.length > 1"
+                  class="flex justify-center gap-2"
+                >
+                  <button
+                    v-for="(_, index) in selectedProduct.images"
+                    :key="`indicator-${index}`"
+                    @click="setCurrentImage(index)"
+                    :class="[
+                      'w-2 h-2 rounded-full transition-all duration-200',
+                      (currentImageIndex || 0) === index
+                        ? 'bg-primary scale-125'
+                        : 'bg-gray-300 hover:bg-gray-400',
+                    ]"
+                    type="button"
+                  />
+                </div>
+              </div>
             </div>
 
             <!-- Product Info -->
@@ -698,10 +936,7 @@
     </Dialog>
 
     <!-- Add/Edit Product Dialog -->
-    <Dialog
-      :open="showAddProductDialog"
-      @update:open="showAddProductDialog = $event"
-    >
+    <Dialog v-model:open="showAddProductDialog" :modal="!isResettingForm">
       <DialogContent class="sm:max-w-[600px] max-h-[90vh] flex flex-col p-0">
         <DialogHeader class="px-6 py-4 border-b">
           <DialogTitle>{{
@@ -779,28 +1014,34 @@
               </div>
 
               <div>
-                <Label for="productImage">Product Image URL</Label>
-                <Input
-                  id="productImage"
-                  v-model="productForm.image"
-                  placeholder="Enter image URL (optional)"
-                  class="mt-1"
-                />
-                <p class="text-xs text-muted-foreground mt-1">
-                  Leave empty for default placeholder image
+                <Label class="text-sm font-medium">
+                  Product Images (Optional)
+                </Label>
+                <p class="text-xs text-muted-foreground mb-2">
+                  Upload up to 5 images of your product (Max 5MB each)
                 </p>
+                <ImageUpload
+                  :model-value="productForm.images || []"
+                  @update:model-value="handleImageUpdate"
+                  :max-files="5"
+                  :max-file-size="5 * 1024 * 1024"
+                  accept=".png,.jpg,.jpeg,.gif"
+                  @error="handleImageError"
+                />
               </div>
 
               <div>
-                <Label for="productLink">Product Link</Label>
+                <Label for="productLink">Product Link (Optional)</Label>
                 <Input
                   id="productLink"
                   v-model="productForm.link"
-                  placeholder="Enter product link (e.g., Shopee, Lazada)"
+                  type="text"
+                  placeholder="Enter product link (e.g., https://your-website.com/product)"
                   class="mt-1"
                 />
                 <p class="text-xs text-muted-foreground mt-1">
-                  Add link to your product on external platforms
+                  Add full URL to your product (website, online store, social
+                  media, etc.)
                 </p>
               </div>
 
@@ -808,7 +1049,8 @@
                 <Label for="productTags">Tags</Label>
                 <TagInput
                   id="productTags"
-                  v-model="productForm.tags"
+                  :model-value="productForm.tags"
+                  @update:model-value="handleTagsUpdate"
                   :suggestions="tagSuggestions"
                   :max-tags="10"
                   placeholder="Add tags for product matching..."
@@ -837,7 +1079,7 @@
                       id="featured"
                       type="checkbox"
                       v-model="productForm.featured"
-                      class="rounded"
+                      class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                     />
                     <Label for="featured">Featured product</Label>
                   </div>
@@ -848,13 +1090,18 @@
         </div>
 
         <DialogFooter class="px-6 py-4 border-t">
-          <Button variant="outline" @click="cancelEdit" type="button">
+          <Button
+            variant="outline"
+            @click="cancelEdit"
+            type="button"
+            :disabled="isResettingForm"
+          >
             Cancel
           </Button>
           <Button
             @click="saveProduct"
             type="submit"
-            :disabled="!isFormValid || isSubmitting"
+            :disabled="!isFormValid || isSubmitting || isResettingForm"
           >
             {{ editingProduct ? "Update Product" : "Create Product" }}
           </Button>
@@ -863,7 +1110,7 @@
     </Dialog>
 
     <!-- Delete Confirmation Dialog -->
-    <Dialog :open="showDeleteDialog" @update:open="showDeleteDialog = $event">
+    <Dialog v-model:open="showDeleteDialog">
       <DialogContent class="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle>Delete Product</DialogTitle>
@@ -891,11 +1138,46 @@
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    <!-- Fullscreen Image Dialog -->
+    <Dialog v-model:open="showImageFullscreen">
+      <DialogContent
+        class="max-w-[95vw] max-h-[95vh] p-0 bg-transparent border-0 shadow-none"
+      >
+        <div class="relative w-full h-full flex items-center justify-center">
+          <img
+            :src="fullscreenImageUrl"
+            :alt="selectedProduct?.name || 'Product image'"
+            class="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+            @click="closeImageFullscreen"
+          />
+          <button
+            @click="closeImageFullscreen"
+            class="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors duration-200"
+            type="button"
+          >
+            <svg
+              class="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
@@ -919,6 +1201,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { TagInput } from "@/components/ui/tag-input";
+import { ImageUpload } from "@/components/ui/image-upload";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   PlusIcon,
   PencilIcon,
@@ -940,6 +1224,13 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 import { apiFetching } from "@/services/api-fetching";
 import { toast } from "vue-sonner";
@@ -961,7 +1252,7 @@ interface Product {
   name: string;
   description: string;
   category: string;
-  image: string;
+  images?: string[];
   status: "active" | "inactive";
   featured: boolean;
   slug: string;
@@ -990,11 +1281,20 @@ const isLoading = ref(false);
 const isSubmitting = ref(false);
 const error = ref<string | null>(null);
 const showMobileFilters = ref(false);
+const isResettingForm = ref(false);
+
+// Image carousel state
+const currentImageIndex = ref(0);
+const showImageFullscreen = ref(false);
+const fullscreenImageUrl = ref("");
 
 // Pagination
 const currentPage = ref(1);
 const itemsPerPage = ref(9);
 const sortBy = ref("newest");
+
+// const backendUrl = "http://localhost:3001";
+const backendUrl = "https://api.myngo.my";
 
 // Filters
 const filters = ref({
@@ -1018,19 +1318,17 @@ const allTags = ref<Tag[]>([]);
 const tagSuggestions = ref<string[]>([]);
 
 // Product form
-const defaultProductForm = {
+const productForm = ref({
   name: "",
   description: "",
   category: "",
-  image: "",
+  images: [] as (File | string)[],
   status: "active" as "active" | "inactive",
   featured: false,
   tags: [] as string[],
   businessId: "",
   link: "",
-};
-
-const productForm = ref({ ...defaultProductForm });
+});
 
 // API Methods
 
@@ -1041,12 +1339,17 @@ const fetchProductCategories = async () => {
       true
     );
 
-    categories.value = response.data.lookup_data.map((category: any) => ({
-      value: category.value,
-      label: category.title,
-    }));
+    if (response.success && response.data?.lookup_data) {
+      categories.value = response.data.lookup_data.map((category: any) => ({
+        value: category.value,
+        label: category.title,
+      }));
+    } else {
+      throw new Error(response.message || "Failed to fetch product categories");
+    }
   } catch (err: any) {
     console.error("Error fetching product categories:", err);
+    toast.error("Failed to load product categories. Please refresh the page.");
   }
 };
 
@@ -1089,20 +1392,17 @@ const fetchBusinesses = async () => {
   try {
     const response = await apiFetching().get("/businesses", true);
 
-    // businesses.value = response.data.businesses.filter(
-    //   value: category.value,
-    //   label: category.title,
-    // );
-
-    console.log("response:", response.data.businesses);
-
-    businesses.value = response.data.businesses.map((business: any) => ({
-      value: business.id,
-      label: business.name,
-    }));
+    if (response.success && response.data?.businesses) {
+      businesses.value = response.data.businesses.map((business: any) => ({
+        value: business.id,
+        label: business.name,
+      }));
+    } else {
+      throw new Error(response.message || "Failed to fetch businesses");
+    }
   } catch (err: any) {
     console.error("Error fetching businesses:", err);
-    toast.error("Failed to load businesses. Please try again.");
+    toast.error("Failed to load businesses. Please refresh the page.");
   }
 };
 
@@ -1111,15 +1411,30 @@ const createProduct = async (productData: any) => {
     const response = await apiFetching().post("/products", productData, true);
 
     if (response.success && response.data?.product) {
+      // Add the new product to the beginning of the list
       products.value.unshift(response.data.product);
       toast.success("Product created successfully!");
+
+      // Refresh tags if new ones were added
+      if (
+        productData.tags &&
+        Array.isArray(productData.tags) &&
+        productData.tags.length > 0
+      ) {
+        // Refresh tags in background, don't await
+        fetchUserTags().catch((err) =>
+          console.warn("Could not refresh tags:", err)
+        );
+      }
       return response.data.product;
     } else {
       throw new Error(response.message || "Failed to create product");
     }
   } catch (err: any) {
     console.error("Error creating product:", err);
-    toast.error(err.message || "Failed to create product. Please try again.");
+    const errorMessage =
+      err.message || "Failed to create product. Please try again.";
+    toast.error(errorMessage);
     throw err;
   }
 };
@@ -1138,13 +1453,28 @@ const updateProduct = async (productId: number, productData: any) => {
         products.value[index] = response.data.product;
       }
       toast.success("Product updated successfully!");
+
+      // Refresh tags if new ones were added
+      if (
+        productData.tags &&
+        Array.isArray(productData.tags) &&
+        productData.tags.length > 0
+      ) {
+        // Refresh tags in background, don't await
+        fetchUserTags().catch((err) =>
+          console.warn("Could not refresh tags:", err)
+        );
+      }
+
       return response.data.product;
     } else {
       throw new Error(response.message || "Failed to update product");
     }
   } catch (err: any) {
     console.error("Error updating product:", err);
-    toast.error(err.message || "Failed to update product. Please try again.");
+    const errorMessage =
+      err.message || "Failed to update product. Please try again.";
+    toast.error(errorMessage);
     throw err;
   }
 };
@@ -1159,12 +1489,110 @@ const deleteProductApi = async (productId: number) => {
         products.value.splice(index, 1);
       }
       toast.success("Product deleted successfully!");
+
+      // Reset current page if we're on a page that no longer exists
+      const newTotalPages = Math.ceil(
+        products.value.length / itemsPerPage.value
+      );
+      if (currentPage.value > newTotalPages && newTotalPages > 0) {
+        currentPage.value = newTotalPages;
+      }
     } else {
       throw new Error(response.message || "Failed to delete product");
     }
   } catch (err: any) {
     console.error("Error deleting product:", err);
-    toast.error(err.message || "Failed to delete product. Please try again.");
+    const errorMessage =
+      err.message || "Failed to delete product. Please try again.";
+    toast.error(errorMessage);
+    throw err;
+  }
+};
+
+const createProductWithFormData = async (formData: FormData) => {
+  try {
+    const response = await apiFetching().postFormData(
+      "/products",
+      formData,
+      true
+    );
+
+    if (response.success && response.data?.product) {
+      // Add the new product to the beginning of the list
+      products.value.unshift(response.data.product);
+      toast.success("Product created successfully!");
+
+      // Refresh tags if new ones were added
+      const tagsData = formData.get("tags");
+      if (tagsData) {
+        try {
+          const tags = JSON.parse(tagsData as string);
+          if (tags && Array.isArray(tags) && tags.length > 0) {
+            // Refresh tags in background, don't await
+            fetchUserTags().catch((err) =>
+              console.warn("Could not refresh tags:", err)
+            );
+          }
+        } catch (e) {
+          console.warn("Could not parse tags for refresh:", e);
+        }
+      }
+      return response.data.product;
+    } else {
+      throw new Error(response.message || "Failed to create product");
+    }
+  } catch (err: any) {
+    console.error("Error creating product with images:", err);
+    const errorMessage =
+      err.message || "Failed to create product. Please try again.";
+    toast.error(errorMessage);
+    throw err;
+  }
+};
+
+const updateProductWithFormData = async (
+  productId: number,
+  formData: FormData
+) => {
+  try {
+    const response = await apiFetching().putFormData(
+      `/products/${productId}`,
+      formData,
+      true
+    );
+
+    if (response.success && response.data?.product) {
+      const index = products.value.findIndex((p) => p.id === productId);
+      if (index > -1) {
+        products.value[index] = response.data.product;
+      }
+      toast.success("Product updated successfully!");
+
+      // Refresh tags if new ones were added
+      const tagsData = formData.get("tags");
+      if (tagsData) {
+        try {
+          const tags = JSON.parse(tagsData as string);
+          if (tags && Array.isArray(tags) && tags.length > 0) {
+            // Refresh tags in background, don't await
+            fetchUserTags().catch((err) =>
+              console.warn("Could not refresh tags:", err)
+            );
+          }
+        } catch (e) {
+          console.warn("Could not parse tags for refresh:", e);
+        }
+      }
+
+      return response.data.product;
+    } else {
+      throw new Error(response.message || "Failed to update product");
+    }
+  } catch (err: any) {
+    console.error("Error updating product with images:", err);
+    const errorMessage =
+      err.message || "Failed to update product. Please try again.";
+    toast.error(errorMessage);
     throw err;
   }
 };
@@ -1181,6 +1609,7 @@ const filteredResults = computed(() => {
         product.name.toLowerCase().includes(query) ||
         product.description.toLowerCase().includes(query) ||
         product.category.toLowerCase().includes(query) ||
+        (product.link && product.link.toLowerCase().includes(query)) ||
         product.tags.some((tag) => tag.name.toLowerCase().includes(query))
     );
   }
@@ -1280,12 +1709,20 @@ const activeFiltersCount = computed(() => {
 });
 
 const isFormValid = computed(() => {
-  return (
-    productForm.value.name.trim() !== "" &&
-    productForm.value.category !== "" &&
-    productForm.value.description.trim() !== "" &&
-    productForm.value.businessId !== ""
-  );
+  // Prevent computation during form reset
+  if (isResettingForm.value) return false;
+
+  try {
+    return (
+      productForm.value.name?.trim() !== "" &&
+      productForm.value.category !== "" &&
+      productForm.value.description?.trim() !== "" &&
+      productForm.value.businessId !== ""
+    );
+  } catch (error) {
+    console.warn("Error in form validation:", error);
+    return false;
+  }
 });
 
 // Helper functions
@@ -1294,10 +1731,7 @@ const getCategoryLabel = (value: string): string => {
   return category ? category.label : value;
 };
 
-const getBusinessName = (businessId: number): string => {
-  const business = businesses.value.find((b) => b.value === businessId);
-  return business ? business.label : "Unknown Business";
-};
+// Removed unused getBusinessName function - business name is already in product.business.label
 
 const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -1307,9 +1741,19 @@ const formatDate = (dateString: string): string => {
   });
 };
 
+// Search debouncing to prevent excessive updates
+let searchTimeout: ReturnType<typeof setTimeout> | null = null;
+
 // Methods
 const performSearch = () => {
-  currentPage.value = 1;
+  // Debounce search to avoid excessive filtering while typing
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  // The watcher will handle pagination reset, so we don't need to do it here
+  searchTimeout = setTimeout(() => {
+    // Search is handled by computed properties, no action needed
+  }, 300);
 };
 
 const resetFilters = () => {
@@ -1335,13 +1779,14 @@ const editProduct = (product: Product) => {
     name: product.name,
     description: product.description,
     category: product.category,
-    image: product.image || "",
+    images: product.images || [],
     status: product.status,
     featured: product.featured,
     tags: product.tags?.map((tag) => tag.name) || [],
     businessId: product.businessId ? product.businessId.toString() : "",
     link: product.link || "",
   };
+
   showProductDetailDialog.value = false;
   showAddProductDialog.value = true;
 };
@@ -1377,41 +1822,225 @@ const saveProduct = async () => {
   try {
     isSubmitting.value = true;
 
-    const productData = {
-      name: productForm.value.name,
-      description: productForm.value.description,
-      category: productForm.value.category,
-      image: productForm.value.image || null,
-      status: productForm.value.status,
-      featured: productForm.value.featured,
-      tags: productForm.value.tags,
-      businessId: parseInt(productForm.value.businessId),
-      link: productForm.value.link || null,
-    };
+    // Debug: Log the featured value
+    console.log("Featured value before save:", productForm.value.featured);
 
-    if (editingProduct.value) {
-      await updateProduct(editingProduct.value.id, productData);
-    } else {
-      await createProduct(productData);
+    // Validate form data
+    if (!productForm.value.name.trim()) {
+      toast.error("Product name is required");
+      return;
+    }
+    if (!productForm.value.businessId) {
+      toast.error("Please select a business");
+      return;
+    }
+    if (!productForm.value.category) {
+      toast.error("Please select a category");
+      return;
+    }
+    if (!productForm.value.description.trim()) {
+      toast.error("Product description is required");
+      return;
     }
 
-    cancelEdit();
+    // Validate URL if provided
+    if (productForm.value.link && productForm.value.link.trim()) {
+      const trimmedLink = productForm.value.link.trim();
+
+      try {
+        // Try to create a URL object - this will validate the URL format
+        let testUrl: URL;
+
+        // If URL doesn't have protocol, add https://
+        if (
+          !trimmedLink.startsWith("http://") &&
+          !trimmedLink.startsWith("https://")
+        ) {
+          testUrl = new URL("https://" + trimmedLink);
+          productForm.value.link = "https://" + trimmedLink;
+        } else {
+          testUrl = new URL(trimmedLink);
+          productForm.value.link = trimmedLink;
+        }
+
+        // Basic validation - must have a hostname
+        if (!testUrl.hostname) {
+          throw new Error("Invalid URL");
+        }
+      } catch (error) {
+        toast.error("Please enter a valid URL for the product link");
+        return;
+      }
+    }
+
+    // Prepare tags array
+    const validTags = productForm.value.tags
+      .filter((tag) => tag && typeof tag === "string" && tag.trim().length > 0)
+      .map((tag) => tag.trim());
+
+    // Check if there are new file uploads
+    const hasNewFiles = productForm.value.images?.some(
+      (img) => img instanceof File
+    );
+
+    if (
+      hasNewFiles ||
+      (productForm.value.images && productForm.value.images.length > 0)
+    ) {
+      // Use FormData for file uploads
+      const formData = new FormData();
+
+      // Add form fields
+      formData.append("name", productForm.value.name.trim());
+      formData.append("description", productForm.value.description.trim());
+      formData.append("category", productForm.value.category);
+      formData.append("status", productForm.value.status);
+      formData.append("featured", productForm.value.featured.toString());
+      formData.append("businessId", productForm.value.businessId);
+      formData.append("tags", JSON.stringify(validTags));
+
+      // Add link if provided
+      if (productForm.value.link && productForm.value.link.trim()) {
+        formData.append("link", productForm.value.link.trim());
+      }
+
+      // Add images
+      if (productForm.value.images) {
+        productForm.value.images.forEach((item) => {
+          if (item instanceof File) {
+            formData.append("images", item);
+          }
+        });
+
+        // Add existing image URLs
+        const existingImages = productForm.value.images.filter(
+          (img) => typeof img === "string"
+        );
+        if (existingImages.length > 0) {
+          formData.append("existingImages", JSON.stringify(existingImages));
+        }
+      }
+
+      if (editingProduct.value) {
+        await updateProductWithFormData(editingProduct.value.id, formData);
+      } else {
+        await createProductWithFormData(formData);
+      }
+    } else {
+      // Use regular JSON for requests without files
+      const productData = {
+        name: productForm.value.name.trim(),
+        description: productForm.value.description.trim(),
+        category: productForm.value.category,
+        images: [],
+        status: productForm.value.status,
+        featured: productForm.value.featured,
+        tags: validTags,
+        businessId: parseInt(productForm.value.businessId),
+        link:
+          productForm.value.link && productForm.value.link.trim()
+            ? productForm.value.link.trim()
+            : null,
+      };
+
+      if (editingProduct.value) {
+        await updateProduct(editingProduct.value.id, productData);
+      } else {
+        await createProduct(productData);
+      }
+    }
+
+    await resetForm();
+    showAddProductDialog.value = false;
   } catch (error) {
-    // Error handling is done in the API methods
+    console.error("Error saving product:", error);
+    toast.error("Failed to save product. Please try again.");
   } finally {
     isSubmitting.value = false;
   }
 };
 
-const cancelEdit = () => {
-  showAddProductDialog.value = false;
-  editingProduct.value = null;
-  productForm.value = { ...defaultProductForm };
+const resetForm = async () => {
+  try {
+    isResettingForm.value = true;
+
+    editingProduct.value = null;
+
+    // Wait for next tick to ensure reactivity has processed
+    await nextTick();
+
+    productForm.value = {
+      name: "",
+      description: "",
+      category: "",
+      images: [] as (File | string)[],
+      status: "active" as "active" | "inactive",
+      featured: false,
+      tags: [] as string[],
+      businessId: "",
+      link: "",
+    };
+
+    // Wait another tick for form updates to complete
+    await nextTick();
+  } catch (error) {
+    console.error("Error resetting form:", error);
+  } finally {
+    isResettingForm.value = false;
+  }
+};
+
+const cancelEdit = async () => {
+  try {
+    await resetForm();
+    showAddProductDialog.value = false;
+  } catch (error) {
+    console.error("Error canceling edit:", error);
+    // Still close the dialog even if reset fails
+    showAddProductDialog.value = false;
+  }
+};
+
+// Handler methods
+const handleImageUpdate = (files: (File | string)[]) => {
+  try {
+    productForm.value.images = files;
+  } catch (error) {
+    console.error("Error updating images:", error);
+    toast.error("Failed to update images");
+  }
+};
+
+const handleImageError = (message: string) => {
+  toast.error(message);
+};
+
+const handleTagsUpdate = (tags: string[]) => {
+  try {
+    // Validate tags
+    const validTags = tags
+      .filter((tag) => tag && typeof tag === "string" && tag.trim().length > 0)
+      .slice(0, 10); // Limit to 10 tags
+
+    productForm.value.tags = validTags;
+  } catch (error) {
+    console.error("Error updating tags:", error);
+    toast.error("Failed to update tags");
+  }
 };
 
 const goToPage = (page: number) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
+  try {
+    if (page >= 1 && page <= totalPages.value && page !== currentPage.value) {
+      currentPage.value = page;
+
+      // Scroll to top on page change for better UX
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+  } catch (error) {
+    console.error("Error changing page:", error);
   }
 };
 
@@ -1425,13 +2054,87 @@ const copyToClipboard = async (text: string) => {
   }
 };
 
+// Image carousel functions
+const setCurrentImage = (index: number) => {
+  currentImageIndex.value = index;
+};
+
+const openImageFullscreen = (imageUrl: string) => {
+  fullscreenImageUrl.value = imageUrl;
+  showImageFullscreen.value = true;
+};
+
+const closeImageFullscreen = () => {
+  showImageFullscreen.value = false;
+  fullscreenImageUrl.value = "";
+};
+
+// Watchers
+
+// Debug: Watch featured value changes
+watch(
+  () => productForm.value.featured,
+  (newValue, oldValue) => {
+    console.log("Featured value changed:", { from: oldValue, to: newValue });
+  }
+);
+
+// Reset image index when product changes
+watch(
+  () => selectedProduct.value,
+  () => {
+    currentImageIndex.value = 0;
+  }
+);
+
+watch(
+  totalPages,
+  (newTotalPages) => {
+    // Ensure current page is within bounds when total pages change
+    if (currentPage.value > newTotalPages && newTotalPages > 0) {
+      currentPage.value = newTotalPages;
+    } else if (newTotalPages === 0) {
+      currentPage.value = 1;
+    }
+  },
+  { immediate: true }
+);
+
+// Watch for search/filter changes to reset pagination
+watch(
+  [searchQuery, () => filters.value, sortBy],
+  () => {
+    // Reset to first page when search/filters change
+    if (currentPage.value !== 1) {
+      currentPage.value = 1;
+    }
+  },
+  { deep: true }
+);
+
 // Lifecycle
 onMounted(async () => {
-  await Promise.all([
-    fetchProducts(),
-    fetchUserTags(),
-    fetchBusinesses(),
-    fetchProductCategories(),
-  ]);
+  try {
+    // Load critical data first
+    await Promise.all([
+      fetchProducts(),
+      fetchBusinesses(),
+      fetchProductCategories(),
+    ]);
+
+    // Load tags in background as it's not critical
+    fetchUserTags().catch((err) => console.warn("Could not load tags:", err));
+  } catch (error) {
+    console.error("Error during component initialization:", error);
+    toast.error("Failed to initialize component. Please refresh the page.");
+  }
+});
+
+// Cleanup on unmount
+onUnmounted(() => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+    searchTimeout = null;
+  }
 });
 </script>
