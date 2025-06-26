@@ -325,13 +325,18 @@
                     MOF: {{ business.mofRegistrationNumber }}
                   </span>
                 </div>
-                <div v-if="business.images && business.images.length > 0" class="flex items-center gap-2">
-                  <ImageIcon
+                <div v-if="business.url" class="flex items-center gap-2">
+                  <LinkIcon
                     class="h-3 sm:h-4 w-3 sm:w-4 text-muted-foreground flex-shrink-0"
                   />
-                  <span class="text-muted-foreground text-xs sm:text-sm">
-                    {{ business.images.length }} image{{ business.images.length > 1 ? 's' : '' }}
-                  </span>
+                  <a
+                    :href="business.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-muted-foreground text-xs sm:text-sm hover:underline truncate"
+                  >
+                    Visit Website
+                  </a>
                 </div>
               </div>
 
@@ -529,26 +534,20 @@
                 </div>
 
                 <div
-                  v-if="selectedBusiness.images && selectedBusiness.images.length > 0"
+                  v-if="selectedBusiness.url"
                   class="flex items-start gap-3"
                 >
-                  <ImageIcon class="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div class="flex-1">
-                    <p class="font-medium mb-2">Business Images</p>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      <div
-                        v-for="(image, index) in selectedBusiness.images"
-                        :key="index"
-                        class="aspect-video bg-muted rounded-md overflow-hidden"
-                      >
-                        <img
-                          :src="getBusinessImageUrl(image)"
-                          :alt="`Business image ${index + 1}`"
-                          class="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
-
-                        />
-                      </div>
-                    </div>
+                  <LinkIcon class="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div>
+                    <p class="font-medium">Website</p>
+                    <a
+                      :href="selectedBusiness.url"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-sm text-primary hover:underline break-all"
+                    >
+                      {{ selectedBusiness.url }}
+                    </a>
                   </div>
                 </div>
               </div>
@@ -690,7 +689,7 @@ import {
   MapPinIcon,
   PhoneIcon,
   TagIcon,
-  ImageIcon,
+  LinkIcon,
   SearchIcon,
   RefreshCcwIcon,
   EyeIcon,
@@ -711,7 +710,6 @@ import type { Business } from "@/types/business";
 
 import { apiFetching } from "@/services/api-fetching";
 import { toast } from "vue-sonner";
-import { getBusinessImageUrl } from "@/utils/imageUrl";
 
 // Router
 const router = useRouter();
